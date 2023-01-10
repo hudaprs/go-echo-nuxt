@@ -1,3 +1,9 @@
+<script setup lang="ts">
+definePageMeta({
+  layout: 'default'
+})
+</script>
+
 <template>
-  <h1>Entry Point</h1>
+  <h5>Entry Point</h5>
 </template>
