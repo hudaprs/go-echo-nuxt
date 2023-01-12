@@ -1,6 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxtjs/tailwindcss', '@gits-id/ui-nuxt', '@pinia/nuxt'],
+  modules: [
+    '@nuxtjs/tailwindcss',
+    '@gits-id/ui-nuxt',
+    '@pinia/nuxt',
+    '@pinia-plugin-persistedstate/nuxt'
+  ],
   runtimeConfig: {
     public: {
       BASE_URL: 'http://localhost:8000/api'

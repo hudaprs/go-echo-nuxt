@@ -14,6 +14,9 @@ import { useToast } from 'vue-toastification'
 // Pinia
 import { storeToRefs } from 'pinia'
 
+// Router
+const router = useRouter()
+
 // Toast
 const toast = useToast()
 
@@ -22,7 +25,8 @@ const { login } = useAuthStore()
 const { loading } = storeToRefs(useAuthStore())
 
 definePageMeta({
-  layout: 'auth'
+  layout: 'auth',
+  middleware: ['auth']
 })
 
 useHead({
@@ -50,17 +54,23 @@ const onSubmit = handleSubmit(async (form): Promise<void> => {
     const response = await login(form)
 
     toast.success(response.message)
-  } catch (err) {
-    if (err instanceof Error) {
-      toast.error(err.message)
-    }
+
+    router.replace({ name: 'index' })
+  } catch (_) {
+    //
   }
 })
 </script>
 
 <template>
   <div class="h-screen w-screen justify-center items-center flex flex-col">
-    <v-card style="width: 450px" title="Login Form" bordered>
+    <v-card style="width: 450px" bordered>
+      <!-- Header -->
+      <template #header>
+        <auth-form-card-header title="Login Form" />
+      </template>
+
+      <!-- Body -->
       <form @submit="onSubmit">
         <!-- Email -->
         <v-form-group label="Email">

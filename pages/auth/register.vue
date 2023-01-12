@@ -25,7 +25,8 @@ const { loading } = storeToRefs(useAuthStore())
 const router = useRouter()
 
 definePageMeta({
-  layout: 'auth'
+  layout: 'auth',
+  middleware: ['auth']
 })
 
 useHead({
@@ -64,7 +65,11 @@ const onSubmit = handleSubmit(async (form): Promise<void> => {
 
 <template>
   <div class="h-screen w-screen justify-center items-center flex flex-col">
-    <v-card style="width: 450px" title="Register Form" bordered>
+    <v-card style="width: 450px" bordered>
+      <template #header>
+        <auth-form-card-header title="Register Form" />
+      </template>
+
       <form @submit="onSubmit">
         <!-- Email -->
         <v-form-group label="Name">
