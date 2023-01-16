@@ -86,6 +86,15 @@ export const useAuthStore = defineStore('auth', {
       } finally {
         this.loading = commonLoadingMap(this.loading, 'isDefaultLoading', false)
       }
+    },
+
+    /**
+     * @description Logout user
+     *
+     * @return {void} void
+     */
+    logout: function (): void {
+      this.token = ''
     }
   }
 })
