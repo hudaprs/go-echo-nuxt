@@ -7,14 +7,20 @@ export const $api = <T extends unknown>(
   const config = useRuntimeConfig()
   const baseURL = config.public.BASE_URL
   const toast = useToast()
+  const authStore = useAuthStore()
 
   return $fetch<T>(options[0], {
     baseURL,
     ...options[1],
+    headers: {
+      Authorization: `Bearer ${authStore.token}`
+    },
     onResponseError: context => {
       console.error('### RESPONSE ERROR', context)
 
-      toast.error(context?.error || context.response._data?.message)
+      if (window) {
+        toast.error(context?.error || context.response._data?.message)
+      }
     },
     onRequestError: context => {
       console.error('### REQUEST ERROR', context)

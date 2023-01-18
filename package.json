@@ -11,10 +11,11 @@
     "@nuxtjs/tailwindcss": "^6.2.0",
     "@pinia-plugin-persistedstate/nuxt": "^1.0.0",
     "nuxt": "3.0.0",
-    "prettier": "^2.8.2"
+    "prettier": "^2.8.2",
+    "sass": "^1.57.1"
   },
   "dependencies": {
-    "@gits-id/ui-nuxt": "^0.14.0-alpha.4",
+    "@gits-id/ui-nuxt": "^0.14.3",
     "@pinia/nuxt": "^0.4.6",
     "pinia": "^2.0.28",
     "vee-validate": "^4.7.3",

@@ -13,5 +13,8 @@ module.exports = {
     extend: {}
   },
   plugins: [],
-  presets: [require('./preset')]
+  presets: [require('./preset')],
+  gitsUi: {
+    sass: true
+  }
 }

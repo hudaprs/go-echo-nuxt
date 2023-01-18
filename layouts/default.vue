@@ -19,7 +19,7 @@ const menus = reactive([
   },
   {
     text: 'Todo',
-    to: '/todo',
+    to: '/todos',
     icon: 'ri-book-read-line'
   }
 ])
