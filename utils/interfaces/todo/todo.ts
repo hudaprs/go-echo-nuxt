@@ -15,4 +15,7 @@ export interface ITodo {
 export interface ITodoForm {
   title: string
   completed: boolean
+
+  // For front-end only
+  id?: number
 }

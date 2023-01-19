@@ -1,12 +1,16 @@
 <script setup lang="ts">
-// Interfaces
-import { ITodoForm } from '~~/utils/interfaces/todo/todo'
+// Vue Toastification
+import { useToast } from 'vue-toastification'
 
-// Yup
-import { object, string } from 'yup'
+// Pinia
+import { storeToRefs } from 'pinia'
 
-// Vee Validate
-import { useForm } from 'vee-validate'
+// Toast
+const toast = useToast()
+
+// Store
+const todoStore = useTodoStore()
+const { loading } = storeToRefs(todoStore)
 
 // Interfaces
 interface ITodoModalCreateEditProps {
@@ -15,32 +19,14 @@ interface ITodoModalCreateEditProps {
 }
 
 // Props
-const { isOpen } = defineProps<ITodoModalCreateEditProps>()
+const props = defineProps<ITodoModalCreateEditProps>()
 
 // Emits
 const emit = defineEmits<{
   (e: 'close', value: false): void
-  (e: 'submit', value: ITodoForm): void
+  (e: 'submit'): void
+  (e: 'refetch'): void
 }>()
-
-// Form
-const validationSchema = object({
-  title: string().required().label('Title')
-})
-const { handleSubmit } = useForm<ITodoForm>({
-  validationSchema
-})
-
-/**
- * @description Submit
- *
- * @param {ITodoForm} form
- *
- * @return {void} void
- */
-const onSubmit = handleSubmit((form): void => {
-  emit('submit', form)
-})
 
 /**
  * @description Hide / Close modal
@@ -50,19 +36,64 @@ const onSubmit = handleSubmit((form): void => {
  * @return {void} void
  */
 const onClose = (): void => {
+  // Close modal
   emit('close', false)
+}
+
+/**
+ * @description Submit
+ *
+ * @param {ITodoForm} form
+ *
+ * @return {void} void
+ */
+const onSubmit = async (): Promise<void> => {
+  emit('submit')
 }
 </script>
 
 <template>
   <v-modal
-    title="Todo Form"
-    width="1024px"
-    maxWidth="1024px"
-    persistent
-    hide-x-button
-    :model-value="isOpen"
+    width="500px"
+    maxWidth="500px"
+    :title="props.isEdit ? 'Edit Todo Form' : 'Create Todo Form'"
+    :model-value="props.isOpen"
+    :hide-footer="loading.isDetailLoading"
     @close="onClose"
+    persistent
   >
+    <!-- Loader -->
+    <div
+      v-if="loading.isDetailLoading"
+      class="flex flex-col gap-2 justify-center items-center"
+    >
+      <v-spinner x-large />
+      <p>Loading todo detail, please wait...</p>
+    </div>
+
+    <!-- Content -->
+    <div v-if="!loading.isDetailLoading">
+      <!-- Title -->
+      <app-form-group>
+        <v-input label="Title" name="title" />
+      </app-form-group>
+
+      <!-- Completed -->
+      <app-form-group v-if="props.isEdit">
+        <v-checkbox label="Completed" name="completed" />
+      </app-form-group>
+    </div>
+
+    <!-- Footer -->
+    <template #footer v-if="!loading.isDetailLoading">
+      <v-btn
+        color="primary"
+        @click="onSubmit"
+        :loading="loading.isCreateEditLoading"
+        :disabled="loading.isCreateEditLoading"
+      >
+        Submit
+      </v-btn>
+    </template>
   </v-modal>
 </template>

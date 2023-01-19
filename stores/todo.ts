@@ -32,6 +32,26 @@ export const useTodoStore = defineStore('todo', {
   }),
   actions: {
     /**
+     * @description Reset state
+     *
+     * @param {string} stateKey
+     *
+     * @return {void} void
+     */
+    reset: function (stateKey: 'list' | 'detail'): void {
+      switch (stateKey) {
+        case 'list':
+          this.list = []
+          break
+        case 'detail':
+          this.detail = null
+          break
+        default:
+          return
+      }
+    },
+
+    /**
      * @description Get list of todo
      *
      * @return {Promise<ITodoResponseList>} Promise<ITodoResponseList>
@@ -41,6 +61,8 @@ export const useTodoStore = defineStore('todo', {
 
       try {
         const response = await $api<ITodoResponseList>('/v1/todos')
+
+        this.list = response.result
 
         return Promise.resolve(response)
       } catch (err) {
@@ -64,7 +86,7 @@ export const useTodoStore = defineStore('todo', {
 
       try {
         const response = await $api<ITodoResponseDetail>('/v1/todos', {
-          method: 'post',
+          method: 'POST',
           body: payload.body
         })
 
@@ -90,28 +112,20 @@ export const useTodoStore = defineStore('todo', {
     show: async function (
       payload: ITodoAttrsShow
     ): Promise<ITodoResponseDetail> {
-      this.list = commonLoadingDataMap(
-        payload.params.id,
-        this.list,
-        'isDetailLoading',
-        true
-      )
+      this.loading = commonLoadingMap(this.loading, 'isDetailLoading', true)
 
       try {
-        const response = await $api<ITodoResponseDetail>('/v1/todos', {
-          params: { id: payload.params.id }
-        })
+        const response = await $api<ITodoResponseDetail>(
+          `/v1/todos/${payload.params.id}`
+        )
+
+        this.detail = response.result
 
         return Promise.resolve(response)
       } catch (err) {
         return Promise.reject(err)
       } finally {
-        this.list = commonLoadingDataMap(
-          payload.params.id,
-          this.list,
-          'isDetailLoading',
-          true
-        )
+        this.loading = commonLoadingMap(this.loading, 'isDetailLoading', false)
       }
     },
 
@@ -128,11 +142,13 @@ export const useTodoStore = defineStore('todo', {
       this.loading = commonLoadingMap(this.loading, 'isCreateEditLoading', true)
 
       try {
-        const response = await $api<ITodoResponseDetail>('/v1/todos', {
-          params: payload.params,
-          method: 'patch',
-          body: payload.body
-        })
+        const response = await $api<ITodoResponseDetail>(
+          `/v1/todos/${payload.params.id}`,
+          {
+            method: 'PATCH',
+            body: payload.body
+          }
+        )
 
         return Promise.resolve(response)
       } catch (err) {
@@ -164,10 +180,12 @@ export const useTodoStore = defineStore('todo', {
       )
 
       try {
-        const response = await $api<ITodoResponseDetail>('/v1/todos', {
-          params: payload.params,
-          method: 'delete'
-        })
+        const response = await $api<ITodoResponseDetail>(
+          `/v1/todos/${payload.params.id}`,
+          {
+            method: 'delete'
+          }
+        )
 
         return Promise.resolve(response)
       } catch (err) {

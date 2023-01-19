@@ -73,16 +73,16 @@ const onSubmit = handleSubmit(async (form): Promise<void> => {
       <!-- Body -->
       <form @submit="onSubmit">
         <!-- Email -->
-        <v-form-group label="Email">
-          <v-input name="email" type="email" />
-        </v-form-group>
+        <app-form-group>
+          <v-input label="Email" name="email" type="email" />
+        </app-form-group>
 
         <!-- Password -->
-        <v-form-group label="Password">
-          <v-input name="password" type="password" />
-        </v-form-group>
+        <app-form-group>
+          <v-input label="Password" name="password" type="password" />
+        </app-form-group>
 
-        <v-form-group>
+        <app-form-group>
           <div class="flex justify-end">
             <v-btn
               type="submit"
@@ -94,7 +94,7 @@ const onSubmit = handleSubmit(async (form): Promise<void> => {
               Login
             </v-btn>
           </div>
-        </v-form-group>
+        </app-form-group>
       </form>
 
       <!-- Footer -->
