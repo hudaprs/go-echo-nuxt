@@ -24,12 +24,23 @@ import { TODO_FORM_INITIAL } from '~~/utils/constants/todo/todo'
 // Lodash
 import omit from 'lodash.omit'
 
+// Set page meta
+definePageMeta({
+  layout: 'default',
+  middleware: ['auth']
+})
+
+// Set page head
+useHead({
+  title: 'Todo'
+})
+
 // Toast
 const toast = useToast()
 
 // Todo Store
 const todoStore = useTodoStore()
-const { loading, list } = storeToRefs(todoStore)
+const { loading, list, detail } = storeToRefs(todoStore)
 
 // Common State
 const tableOptions = reactive<{ headers: VDataTableHeader[] }>({
@@ -40,7 +51,7 @@ const tableOptions = reactive<{ headers: VDataTableHeader[] }>({
   ]
 })
 const todoOptions = reactive({
-  modal: { isCreateEditOpen: false },
+  modal: { isCreateEditOpen: false, isDeleteOpen: false },
   formState: { isEdit: false }
 })
 
@@ -77,7 +88,10 @@ const handleFormState = (type: 'isEdit', value: boolean): void => {
  *
  * @return {void} void
  */
-const handleModal = (type: 'isCreateEditOpen', value: boolean): void => {
+const handleModal = (
+  type: 'isCreateEditOpen' | 'isDeleteOpen',
+  value: boolean
+): void => {
   todoOptions.modal[type] = value
 
   // Check if user closing modal
@@ -88,6 +102,14 @@ const handleModal = (type: 'isCreateEditOpen', value: boolean): void => {
     // Reset the edit state
     if (todoOptions.formState.isEdit) {
       handleFormState('isEdit', false)
+    }
+  }
+
+  // Check if user closing confirmation modal
+  if (type === 'isDeleteOpen' && !value) {
+    // Reset detail of todo
+    if (detail !== null) {
+      todoStore.reset('detail')
     }
   }
 }
@@ -168,6 +190,23 @@ const handleEdit = async (id: number): Promise<void> => {
 }
 
 /**
+ * @description Delete confirmation
+ *
+ * @param {number} id
+ *
+ * @return {void} void
+ */
+const deleteConfirmation = async (id: number) => {
+  try {
+    await todoStore.show({ params: { id } })
+
+    handleModal('isDeleteOpen', true)
+  } catch (_) {
+    handleModal('isDeleteOpen', false)
+  }
+}
+
+/**
  * @description Handle delete
  *
  * @param {number} id
@@ -178,10 +217,17 @@ const handleDelete = async (id: number): Promise<void> => {
   try {
     const response = await todoStore.delete({ params: { id } })
 
+    // Throw Toast
     toast.success(response.message)
 
     // Re-fetch
     refresh()
+
+    // Clear state
+    todoStore.reset('detail')
+
+    // Close confirmation modal
+    if (todoOptions.modal.isDeleteOpen) handleModal('isDeleteOpen', false)
   } catch (_) {
     //
   }
@@ -213,19 +259,24 @@ onUnmounted(() => {
     hide-footer
   >
     <!-- Completed -->
-    <template v-slot:[`item.completed`]="{ item }">
+    <template #item.completed="{ item }">
       <v-badge :color="item.completed ? 'success' : 'warning'">
         {{ item.completed ? 'Completed' : 'Not Completed' }}
       </v-badge>
     </template>
 
     <!-- Action -->
-    <template v-slot:[`item.action`]="{ item }">
+    <template #item.action="{ item }">
       <div class="flex items-center gap-3">
         <v-btn color="primary" size="sm" @click="handleEdit(item.id)"
           >Edit</v-btn
         >
-        <v-btn color="error" size="sm" @click="handleDelete(item.id)"
+        <v-btn
+          color="error"
+          size="sm"
+          @click="deleteConfirmation(item.id)"
+          :loading="item?.loading?.isDetailLoading"
+          :disabled="item?.loading?.isDetailLoading"
           >Delete</v-btn
         >
       </div>
@@ -238,5 +289,15 @@ onUnmounted(() => {
     :is-open="todoOptions.modal.isCreateEditOpen"
     @submit="onSubmit"
     @close="handleModal('isCreateEditOpen', false)"
+  />
+
+  <!-- Modal Confirmation For Delete -->
+  <app-modal-confirmation
+    title="Delete Todo"
+    message="Are you sure want to delete todo?"
+    :is-open="todoOptions.modal.isDeleteOpen"
+    :loading="detail?.loading?.isDeleteLoading"
+    @confirm="handleDelete(detail?.id as number)"
+    @close="handleModal('isDeleteOpen', false)"
   />
 </template>

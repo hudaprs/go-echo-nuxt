@@ -113,6 +113,12 @@ export const useTodoStore = defineStore('todo', {
       payload: ITodoAttrsShow
     ): Promise<ITodoResponseDetail> {
       this.loading = commonLoadingMap(this.loading, 'isDetailLoading', true)
+      this.list = commonLoadingDataMap(
+        payload.params.id,
+        this.list,
+        'isDetailLoading',
+        true
+      )
 
       try {
         const response = await $api<ITodoResponseDetail>(
@@ -126,6 +132,12 @@ export const useTodoStore = defineStore('todo', {
         return Promise.reject(err)
       } finally {
         this.loading = commonLoadingMap(this.loading, 'isDetailLoading', false)
+        this.list = commonLoadingDataMap(
+          payload.params.id,
+          this.list,
+          'isDetailLoading',
+          false
+        )
       }
     },
 

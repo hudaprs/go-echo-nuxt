@@ -37,7 +37,7 @@ useHead({
 const validationSchema = object({
   name: string().required().label('Name'),
   email: string().required().email().label('Email'),
-  password: string().required().label('Password')
+  password: string().required().min(8).label('Password')
 })
 const { handleSubmit } = useForm<IAuthRegisterForm>({
   validationSchema
