@@ -3,7 +3,7 @@
 import { Menu } from '@gits-id/menu'
 
 // Store
-const { logout } = useAuthStore()
+const authStore = useAuthStore()
 
 // Router
 const router = useRouter()
@@ -27,14 +27,16 @@ const menus = reactive([
 /**
  * @description Logout an user
  *
- * @return {void} void
+ * @return {Promise<void>} Promise<void>
  */
-const onLogout = (): void => {
-  // Clear state
-  logout()
+const onLogout = async (): Promise<void> => {
+  try {
+    // Clear state
+    await authStore.logout()
 
-  // Redirect to login
-  router.replace({ name: 'auth-login' })
+    // Redirect to login
+    router.replace({ name: 'auth-login' })
+  } catch (_) {}
 }
 </script>
 

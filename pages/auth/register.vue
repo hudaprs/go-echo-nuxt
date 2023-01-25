@@ -6,7 +6,7 @@ import { object, string } from 'yup'
 import { useForm } from 'vee-validate'
 
 // Interfaces
-import { IAuthRegisterForm } from '~/utils/interfaces/auth/auth'
+import { IAuthAttrsRegister } from '~/utils/interfaces/auth/authAttrs'
 
 // Pinia
 import { storeToRefs } from 'pinia'
@@ -39,14 +39,14 @@ const validationSchema = object({
   email: string().required().email().label('Email'),
   password: string().required().min(8).label('Password')
 })
-const { handleSubmit } = useForm<IAuthRegisterForm>({
+const { handleSubmit } = useForm<IAuthAttrsRegister>({
   validationSchema
 })
 
 /**
  * @description Submit form
  *
- * @param {IAuthRegisterForm} form
+ * @param {IAuthAttrsRegister} form
  *
  * @return {Promise<void>} Promise<void>
  */
@@ -92,8 +92,8 @@ const onSubmit = handleSubmit(async (form): Promise<void> => {
               type="submit"
               color="primary"
               block
-              :disabled="loading.isDefaultLoading"
-              :loading="loading.isDefaultLoading"
+              :disabled="loading.isCreateEditLoading"
+              :loading="loading.isCreateEditLoading"
             >
               Register
             </v-btn>

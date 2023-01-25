@@ -1,10 +1,12 @@
-export interface IAuthLoginForm {
-  email: string
-  password: string
-}
-
-export interface IAuthRegisterForm {
+export interface IAuthUser {
+  id: number
   name: string
   email: string
-  password: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface IAuthToken {
+  token: string
+  refreshToken: string
 }

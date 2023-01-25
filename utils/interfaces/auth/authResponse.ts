@@ -1,13 +1,6 @@
-import { IResponse } from '../api/api'
+// Interfaces
+import { IResponse } from '~~/utils/interfaces//api/api'
+import { IAuthToken, IAuthUser } from './auth'
 
-export type IAuthRegisterResponse = IResponse<{
-  id: number
-  name: string
-  email: string
-  createdAt: string
-  updatedAt: string
-}>
-
-export type IAuthLoginResponse = IResponse<{
-  token: string
-}>
+export type IAuthResponseUser = IResponse<IAuthUser>
+export type IAuthResponseToken = IResponse<IAuthToken>

@@ -6,7 +6,7 @@ import { object, string } from 'yup'
 import { useForm } from 'vee-validate'
 
 // Interfaces
-import { IAuthLoginForm } from '~/utils/interfaces/auth/auth'
+import { IAuthAttrsLogin } from '~/utils/interfaces/auth/authAttrs'
 
 // Vue Toastification
 import { useToast } from 'vue-toastification'
@@ -38,14 +38,14 @@ const validationSchema = object({
   email: string().required().email().label('Email'),
   password: string().required().label('Password')
 })
-const { handleSubmit } = useForm<IAuthLoginForm>({
+const { handleSubmit } = useForm<IAuthAttrsLogin>({
   validationSchema
 })
 
 /**
  * @description Submit form
  *
- * @param {IAuthLoginForm} form
+ * @param {IAuthAttrsLogin} form
  *
  * @return {Promise<void>} Promise<void>
  */
@@ -88,8 +88,8 @@ const onSubmit = handleSubmit(async (form): Promise<void> => {
               type="submit"
               color="primary"
               block
-              :loading="loading.isDefaultLoading"
-              :disabled="loading.isDefaultLoading"
+              :loading="loading.isCreateEditLoading"
+              :disabled="loading.isCreateEditLoading"
             >
               Login
             </v-btn>
