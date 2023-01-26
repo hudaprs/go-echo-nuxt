@@ -42,14 +42,10 @@ const toast = useToast()
 const todoStore = useTodoStore()
 const { loading, list, detail } = storeToRefs(todoStore)
 
+// Common Store
+const commonStore = useCommonStore()
+
 // Common State
-const tableOptions = reactive<{ headers: VDataTableHeader[] }>({
-  headers: [
-    { value: 'title', text: 'Title' },
-    { value: 'completed', text: 'Completed' },
-    { value: 'action', text: 'Action' }
-  ]
-})
 const todoOptions = reactive({
   modal: { isCreateEditOpen: false, isDeleteOpen: false },
   formState: { isEdit: false }
@@ -66,7 +62,24 @@ const { values, validate, resetForm } = useForm<ITodoForm>({
 })
 
 // Load data
-const { refresh } = await useLazyAsyncData(() => todoStore.index())
+const { refresh, error } = await useLazyAsyncData(() => todoStore.index())
+
+// Watch if theres any error when fetching todo list
+watch(
+  () => error,
+  newErrorValue => {
+    if (newErrorValue.value) {
+      commonStore.SET_MODAL_REFETCH({
+        message: 'Something went wrong when fetching todo list',
+        isOpen: true,
+        confirm: () => {
+          refresh()
+        }
+      })
+    }
+  },
+  { deep: true }
+)
 
 /**
  * @description Handle form
@@ -148,7 +161,15 @@ const onSubmit = async () => {
       // Re-fetch the data
       refresh()
     } catch (_) {
-      //
+      commonStore.SET_MODAL_REFETCH({
+        isOpen: true,
+        message: `Something went wrong when start to ${
+          todoOptions.formState.isEdit ? 'edit' : 'create'
+        } todo`,
+        confirm: () => {
+          onSubmit()
+        }
+      })
     }
   }
 }
@@ -186,6 +207,15 @@ const handleEdit = async (id: number): Promise<void> => {
 
     // Make form state edit to false
     handleFormState('isEdit', false)
+
+    // Throw some refetch
+    commonStore.SET_MODAL_REFETCH({
+      isOpen: true,
+      message: 'Something went wrong when start to fetch detail of todo',
+      confirm: () => {
+        handleEdit(id)
+      }
+    })
   }
 }
 
@@ -198,11 +228,22 @@ const handleEdit = async (id: number): Promise<void> => {
  */
 const deleteConfirmation = async (id: number) => {
   try {
+    // Fetch the detail of todo, just to make sure data exists inside server
     await todoStore.show({ params: { id } })
 
     handleModal('isDeleteOpen', true)
-  } catch (_) {
+  } catch (err) {
+    // Close the modal
     handleModal('isDeleteOpen', false)
+
+    // Throw some refetch
+    commonStore.SET_MODAL_REFETCH({
+      isOpen: true,
+      message: 'Something went wrong when start to delete todo',
+      confirm: () => {
+        deleteConfirmation(id)
+      }
+    })
   }
 }
 
@@ -229,7 +270,14 @@ const handleDelete = async (id: number): Promise<void> => {
     // Close confirmation modal
     if (todoOptions.modal.isDeleteOpen) handleModal('isDeleteOpen', false)
   } catch (_) {
-    //
+    // Throw some refetch
+    commonStore.SET_MODAL_REFETCH({
+      isOpen: true,
+      message: 'Something went wrong when start to delete todo',
+      confirm: () => {
+        handleDelete(id)
+      }
+    })
   }
 }
 

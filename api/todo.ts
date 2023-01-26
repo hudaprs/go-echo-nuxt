@@ -2,28 +2,51 @@
 import { $api } from './base'
 
 // Interfaces
-import {} from '~~/utils/interfaces/todo/todoResponse'
-import {} from '~~/utils/interfaces/todo/todoAttrs'
-
-export const ENDPOINT = {
-  INDEX: '/v1/todos/register',
-  CREATE: '/v1/todos/login',
-  SHOW: '/v1/todos/me',
-  UPDATE: '/v1/todos/refresh',
-  DELETE: '/v1/todos/logout'
-}
+import {
+  ITodoResponseList,
+  ITodoResponseDetail
+} from '~~/utils/interfaces/todo/todoResponse'
+import {
+  ITodoAttrsCreate,
+  ITodoAttrsShow,
+  ITodoAttrsUpdate,
+  ITodoAttrsDelete
+} from '~~/utils/interfaces/todo/todoAttrs'
 
 /**
- * @description Register an user
+ * @description Get list of todo
  *
- * @param {ITodoAttrsRegister} form
- *
- * @return {Promise<ITodoResponseUser>} Promise<ITodoResponseUser>
+ * @return {Promise<ITodoResponseList>} Promise<ITodoResponseList>
  */
-export const register = (
-  form: ITodoAttrsRegister
-): Promise<ITodoResponseUser> =>
-  $api<ITodoResponseUser>(ENDPOINT.REGISTER, {
-    method: 'post',
-    body: form
-  })
+
+/**
+ * @description Create todo
+ *
+ * @param {ITodoAttrsCreate} payload
+ *
+ * @return {Promise<ITodoResponseDetail>} Promise<ITodoResponseDetail>
+ */
+
+/**
+ * @description Get detail of todo
+ *
+ * @param {ITodoAttrsShow} payload
+ *
+ * @return {Promise<ITodoResponseDetail>} Promise<ITodoResponseDetail>
+ */
+
+/**
+ * @description Update todo
+ *
+ * @param {ITodoAttrsUpdate} payload
+ *
+ * @return {Promise<ITodoResponseDetail>} Promise<ITodoResponseDetail>
+ */
+
+/**
+ * @description Delete todo
+ *
+ * @param {ITodoAttrsDelete} payload
+ *
+ * @return {Promise<ITodoResponseDetail>} Promise<ITodoResponseDetail>
+ */

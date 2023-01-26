@@ -1,16 +1,17 @@
 <script setup lang="ts">
-// GITS UI
-import { Menu } from '@gits-id/menu'
+// Pinia
+import { storeToRefs } from 'pinia'
 
 // Store
 const authStore = useAuthStore()
+const commonStore = useCommonStore()
+const { modalRefetchOptions } = storeToRefs(commonStore)
 
 // Router
 const router = useRouter()
 
 // State
 const isSidebarOpen = ref(true)
-
 const menus = reactive([
   {
     text: 'Dashboard',
@@ -42,6 +43,7 @@ const onLogout = async (): Promise<void> => {
 
 <template>
   <div class="flex">
+    <!-- Sidebar -->
     <v-nav-drawer
       v-model="isSidebarOpen"
       color="default"
@@ -72,7 +74,9 @@ const onLogout = async (): Promise<void> => {
       </div>
     </v-nav-drawer>
 
+    <!-- Content -->
     <div class="w-screen">
+      <!-- Navbar -->
       <v-app-bar shadow style="height: 70px" class="mb-4">
         <div class="flex justify-between items-center w-full">
           <div>
@@ -84,9 +88,19 @@ const onLogout = async (): Promise<void> => {
         </div>
       </v-app-bar>
 
+      <!-- Container / Body -->
       <div class="ml-3">
         <slot />
       </div>
     </div>
+
+    <!-- Modal Confirmation - Refetch -->
+    <app-modal-confirmation
+      :title="modalRefetchOptions.title || 'Are you want to refetch?'"
+      :message="modalRefetchOptions.message"
+      :is-open="modalRefetchOptions.isOpen"
+      @confirm="commonStore.CLEAR_MODAL_REFETCH(modalRefetchOptions.confirm)"
+      @close="commonStore.CLEAR_MODAL_REFETCH(modalRefetchOptions.close)"
+    />
   </div>
 </template>

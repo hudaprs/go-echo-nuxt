@@ -11,14 +11,6 @@ import {
   IAuthAttrsRegister
 } from '~~/utils/interfaces/auth/authAttrs'
 
-export const ENDPOINT = {
-  REGISTER: '/v1/auth/register',
-  LOGIN: '/v1/auth/login',
-  ME: '/v1/auth/me',
-  REFRESH: '/v1/auth/refresh',
-  LOGOUT: '/v1/auth/logout'
-}
-
 /**
  * @description Register an user
  *
@@ -29,7 +21,7 @@ export const ENDPOINT = {
 export const register = (
   form: IAuthAttrsRegister
 ): Promise<IAuthResponseUser> =>
-  $api<IAuthResponseUser>(ENDPOINT.REGISTER, {
+  $api<IAuthResponseUser>('/v1/auth/register', {
     method: 'post',
     body: form
   })
@@ -42,7 +34,7 @@ export const register = (
  * @return {Promise<IAuthResponseToken>} Promise<IAuthResponseToken>
  */
 export const login = (form: IAuthAttrsLogin): Promise<IAuthResponseToken> =>
-  $api<IAuthResponseToken>(ENDPOINT.LOGIN, {
+  $api<IAuthResponseToken>('/v1/auth/login', {
     method: 'post',
     body: form
   })
@@ -53,7 +45,7 @@ export const login = (form: IAuthAttrsLogin): Promise<IAuthResponseToken> =>
  * @return {Promise<IAuthResponseUser>} Promise<IAuthResponseUser>
  */
 export const me = (): Promise<IAuthResponseUser> =>
-  $api<IAuthResponseUser>(ENDPOINT.LOGIN)
+  $api<IAuthResponseUser>('/v1/auth/me')
 
 /**
  * @description Refresh token of user
@@ -61,11 +53,11 @@ export const me = (): Promise<IAuthResponseUser> =>
  * @return {Promise<IAuthResponseToken>} Promise<IAuthResponseToken>
  */
 export const refresh = (): Promise<IAuthResponseToken> =>
-  $api<IAuthResponseToken>(ENDPOINT.REFRESH)
+  $api<IAuthResponseToken>('/v1/auth/refresh')
 
 /**
  * @description Log user out
  *
  * @return {Promise<void>} Promise<void>
  */
-export const logout = (): Promise<void> => $api<void>(ENDPOINT.LOGOUT)
+export const logout = (): Promise<void> => $api<void>('/v1/auth/logout')

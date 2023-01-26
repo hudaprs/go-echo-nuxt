@@ -18,12 +18,9 @@ export const $api = <T extends unknown>(
       'X-Auth-Refresh-Token': authStore.refreshToken
     },
     onResponseError: async context => {
-      console.error('### RESPONSE ERROR', context)
-      console.log('### OPTIONS', options)
-
-      if (window) {
+      // Throw toast every error came out, except 401 (token expired)
+      if (window && context.response._data?.status !== 401)
         toast.error(context?.error || context.response._data?.message)
-      }
 
       // Check if user got 401 (token expired / invalid signature / etc)
       let retry = true
@@ -34,15 +31,16 @@ export const $api = <T extends unknown>(
 
           // Re-fetch the detail of user
           await authStore.me()
-
-          // Make request again to endpoint that got 401
-          await $api(context.request)
         } catch (_) {
           // If refresh fail, just logout
           await authStore.logout()
 
           // Redirect to login again
           router.replace({ name: 'auth-login' })
+
+          // Throw toast if failed to refresh
+          if (window)
+            toast.error(context?.error || context.response._data?.message)
         } finally {
           // Make retry to refresh to false
           retry = false
