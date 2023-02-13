@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Interfaces
-import type { VDataTableHeader } from '@gits-id/table'
-import { ITodoResponseDetail } from '~~/utils/interfaces/todo/todoResponse'
+import { TCommonPagination } from '~~/utils/interfaces/common/common'
+import { IRoleResponseDetail } from '~~/utils/interfaces/role/roleResponse'
 
 // Pinia
 import { storeToRefs } from 'pinia'
@@ -13,13 +13,13 @@ import { object, string, bool } from 'yup'
 import { useForm } from 'vee-validate'
 
 // Interfaces
-import { ITodoForm } from '~~/utils/interfaces/todo/todo'
+import { IRoleForm } from '~~/utils/interfaces/role/role'
 
 // Vue Toastification
 import { useToast } from 'vue-toastification'
 
 // Constants
-import { TODO_FORM_INITIAL } from '~~/utils/constants/todo/todo'
+import { ROLE_FORM_INITIAL } from '~~/utils/constants/role/role'
 
 // Lodash
 import omit from 'lodash.omit'
@@ -32,45 +32,49 @@ definePageMeta({
 
 // Set page head
 useHead({
-  title: 'Todo'
+  title: 'Role Management'
 })
 
 // Toast
 const toast = useToast()
 
 // Todo Store
-const todoStore = useTodoStore()
-const { loading, list, detail } = storeToRefs(todoStore)
+const roleStore = useRoleStore()
+const { loading, list, detail } = storeToRefs(roleStore)
 
 // Common Store
 const commonStore = useCommonStore()
 
 // Common State
-const todoOptions = reactive({
+const roleOptions = reactive({
   modal: { isCreateEditOpen: false, isDeleteOpen: false },
   formState: { isEdit: false }
 })
 
+// Composables
+const { paginationOptions, onChangePagination } = usePagination()
+
 // Form
 const validationSchema = object({
-  title: string().required().label('Title'),
-  completed: bool()
+  name: string().required().label('Name')
 })
-const { values, validate, resetForm } = useForm<ITodoForm>({
+const { values, validate, resetForm } = useForm<IRoleForm>({
   validationSchema,
-  initialValues: TODO_FORM_INITIAL
+  initialValues: ROLE_FORM_INITIAL
 })
 
 // Load data
-const { refresh, error } = await useLazyAsyncData(() => todoStore.index())
+const { refresh, error } = await useLazyAsyncData(() =>
+  roleStore.index({ params: paginationOptions })
+)
 
-// Watch if theres any error when fetching todo list
+// Watch if theres any error when fetching role list
 watch(
   () => error,
   newErrorValue => {
     if (newErrorValue.value) {
       commonStore.SET_MODAL_REFETCH({
-        message: 'Something went wrong when fetching todo list',
+        message: 'Something went wrong when fetching role list',
         isOpen: true,
         confirm: () => {
           refresh()
@@ -90,7 +94,7 @@ watch(
  * @return {void} void
  */
 const handleFormState = (type: 'isEdit', value: boolean): void => {
-  todoOptions.formState[type] = value
+  roleOptions.formState[type] = value
 }
 
 /**
@@ -105,24 +109,24 @@ const handleModal = (
   type: 'isCreateEditOpen' | 'isDeleteOpen',
   value: boolean
 ): void => {
-  todoOptions.modal[type] = value
+  roleOptions.modal[type] = value
 
   // Check if user closing modal
   if (type === 'isCreateEditOpen' && !value) {
     // Reset the form
-    resetForm({ values: TODO_FORM_INITIAL })
+    resetForm({ values: ROLE_FORM_INITIAL })
 
     // Reset the edit state
-    if (todoOptions.formState.isEdit) {
+    if (roleOptions.formState.isEdit) {
       handleFormState('isEdit', false)
     }
   }
 
   // Check if user closing confirmation modal
   if (type === 'isDeleteOpen' && !value) {
-    // Reset detail of todo
+    // Reset detail of role
     if (detail !== null) {
-      todoStore.reset('detail')
+      roleStore.reset('detail')
     }
   }
 }
@@ -136,16 +140,16 @@ const onSubmit = async () => {
   const validateResponse = await validate()
 
   if (validateResponse.valid) {
-    // Create new todo
+    // Create new role
     try {
-      let response: ITodoResponseDetail
+      let response: IRoleResponseDetail
 
-      if (todoOptions.formState.isEdit)
-        response = await todoStore.update({
+      if (roleOptions.formState.isEdit)
+        response = await roleStore.update({
           params: { id: values.id as number },
           body: omit(values, ['id'])
         })
-      else response = await todoStore.create({ body: values })
+      else response = await roleStore.store({ body: values })
 
       // Throw toast
       toast.success(response.message)
@@ -154,18 +158,20 @@ const onSubmit = async () => {
       handleModal('isCreateEditOpen', false)
 
       // Check if user is in edit mode
-      if (todoOptions.formState.isEdit) {
+      if (roleOptions.formState.isEdit) {
         handleFormState('isEdit', false)
       }
 
       // Re-fetch the data
-      refresh()
+      onChangePagination('reset', null, _paginationOptions =>
+        roleStore.index({ params: _paginationOptions })
+      )
     } catch (_) {
       commonStore.SET_MODAL_REFETCH({
         isOpen: true,
         message: `Something went wrong when start to ${
-          todoOptions.formState.isEdit ? 'edit' : 'create'
-        } todo`,
+          roleOptions.formState.isEdit ? 'edit' : 'create'
+        } role`,
         confirm: () => {
           onSubmit()
         }
@@ -190,15 +196,14 @@ const handleEdit = async (id: number): Promise<void> => {
 
   try {
     const {
-      result: { title, completed }
-    } = await todoStore.show({ params: { id } })
+      result: { name }
+    } = await roleStore.show({ params: { id } })
 
     // Set value to the form
     resetForm({
       values: {
         id,
-        title,
-        completed
+        name
       }
     })
   } catch (_) {
@@ -211,7 +216,7 @@ const handleEdit = async (id: number): Promise<void> => {
     // Throw some refetch
     commonStore.SET_MODAL_REFETCH({
       isOpen: true,
-      message: 'Something went wrong when start to fetch detail of todo',
+      message: 'Something went wrong when start to fetch detail of role',
       confirm: () => {
         handleEdit(id)
       }
@@ -228,8 +233,8 @@ const handleEdit = async (id: number): Promise<void> => {
  */
 const deleteConfirmation = async (id: number) => {
   try {
-    // Fetch the detail of todo, just to make sure data exists inside server
-    await todoStore.show({ params: { id } })
+    // Fetch the detail of role, just to make sure data exists inside server
+    await roleStore.show({ params: { id } })
 
     handleModal('isDeleteOpen', true)
   } catch (err) {
@@ -239,7 +244,7 @@ const deleteConfirmation = async (id: number) => {
     // Throw some refetch
     commonStore.SET_MODAL_REFETCH({
       isOpen: true,
-      message: 'Something went wrong when start to delete todo',
+      message: 'Something went wrong when start to delete role',
       confirm: () => {
         deleteConfirmation(id)
       }
@@ -256,7 +261,7 @@ const deleteConfirmation = async (id: number) => {
  */
 const handleDelete = async (id: number): Promise<void> => {
   try {
-    const response = await todoStore.delete({ params: { id } })
+    const response = await roleStore.destroy({ params: { id } })
 
     // Throw Toast
     toast.success(response.message)
@@ -265,15 +270,15 @@ const handleDelete = async (id: number): Promise<void> => {
     refresh()
 
     // Clear state
-    todoStore.reset('detail')
+    roleStore.reset('detail')
 
     // Close confirmation modal
-    if (todoOptions.modal.isDeleteOpen) handleModal('isDeleteOpen', false)
+    if (roleOptions.modal.isDeleteOpen) handleModal('isDeleteOpen', false)
   } catch (_) {
     // Throw some refetch
     commonStore.SET_MODAL_REFETCH({
       isOpen: true,
-      message: 'Something went wrong when start to delete todo',
+      message: 'Something went wrong when start to delete role',
       confirm: () => {
         handleDelete(id)
       }
@@ -281,46 +286,63 @@ const handleDelete = async (id: number): Promise<void> => {
   }
 }
 
+/**
+ * @description Watch any change in table
+ *
+ * @param {any} payload
+ *
+ * @return {void} void
+ */
+const onChangeTable = (payload: {
+  type: TCommonPagination
+  value: any
+}): void => {
+  onChangePagination(payload.type, payload.value, _paginationOptions => {
+    roleStore.index({ params: _paginationOptions })
+  })
+}
+
 // Do when user leaving the component
 onUnmounted(() => {
   // Clear state
-  todoStore.reset('list')
-  todoStore.reset('detail')
+  roleStore.reset('list')
+  roleStore.reset('detail')
 })
 </script>
 
 <template>
   <!-- Header -->
   <div class="mb-4 flex justify-between items-center px-2">
-    <p class="text-xl font-bold">Todo List</p>
+    <p class="text-xl font-bold">Role List</p>
 
-    <v-btn @click="handleModal('isCreateEditOpen', true)"> Create Todo </v-btn>
+    <v-btn @click="handleModal('isCreateEditOpen', true)"> Create Role </v-btn>
   </div>
 
   <hr />
 
   <!-- Data Table -->
-  <todo-table
+  <role-table
     :list="list"
     :loading="loading"
     @edit="handleEdit"
     @delete-confirmation="deleteConfirmation"
+    @table="onChangeTable"
   />
 
   <!-- Modal For Create And Edit -->
-  <todo-modal-create-edit
-    :is-edit="todoOptions.formState.isEdit"
-    :is-open="todoOptions.modal.isCreateEditOpen"
+  <role-modal-create-edit
+    :is-edit="roleOptions.formState.isEdit"
+    :is-open="roleOptions.modal.isCreateEditOpen"
     @submit="onSubmit"
     @close="handleModal('isCreateEditOpen', false)"
   />
 
   <!-- Modal Confirmation For Delete -->
   <app-modal-confirmation
-    title="Delete Todo"
-    message="Are you sure want to delete todo?"
-    :is-open="todoOptions.modal.isDeleteOpen"
-    :loading="detail?.loading?.isDeleteLoading"
+    title="Delete Role"
+    message="Are you sure want to delete role?"
+    :is-open="roleOptions.modal.isDeleteOpen"
+    :loading="loading.isDeleteLoading"
     @confirm="handleDelete(detail?.id as number)"
     @close="handleModal('isDeleteOpen', false)"
   />
