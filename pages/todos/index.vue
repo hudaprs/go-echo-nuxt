@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // Interfaces
-import type { VDataTableHeader } from '@gits-id/table'
 import { ITodoResponseDetail } from '~~/utils/interfaces/todo/todoResponse'
 
 // Pinia
@@ -224,9 +223,9 @@ const handleEdit = async (id: number): Promise<void> => {
  *
  * @param {number} id
  *
- * @return {void} void
+ * @return {Promise<void>} Promise<void>
  */
-const deleteConfirmation = async (id: number) => {
+const deleteConfirmation = async (id: number): Promise<void> => {
   try {
     // Fetch the detail of todo, just to make sure data exists inside server
     await todoStore.show({ params: { id } })

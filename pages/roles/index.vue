@@ -7,7 +7,7 @@ import { IRoleResponseDetail } from '~~/utils/interfaces/role/roleResponse'
 import { storeToRefs } from 'pinia'
 
 // Yup
-import { object, string, bool } from 'yup'
+import { object, string } from 'yup'
 
 // Vee Validate
 import { useForm } from 'vee-validate'
@@ -47,7 +47,11 @@ const commonStore = useCommonStore()
 
 // Common State
 const roleOptions = reactive({
-  modal: { isCreateEditOpen: false, isDeleteOpen: false },
+  modal: {
+    isCreateEditOpen: false,
+    isDeleteOpen: false,
+    isSetPermissionOpen: false
+  },
   formState: { isEdit: false }
 })
 
@@ -106,7 +110,7 @@ const handleFormState = (type: 'isEdit', value: boolean): void => {
  * @return {void} void
  */
 const handleModal = (
-  type: 'isCreateEditOpen' | 'isDeleteOpen',
+  type: 'isCreateEditOpen' | 'isDeleteOpen' | 'isSetPermissionOpen',
   value: boolean
 ): void => {
   roleOptions.modal[type] = value
@@ -229,9 +233,9 @@ const handleEdit = async (id: number): Promise<void> => {
  *
  * @param {number} id
  *
- * @return {void} void
+ * @return {Promise<void>} Promise<void>
  */
-const deleteConfirmation = async (id: number) => {
+const deleteConfirmation = async (id: number): Promise<void> => {
   try {
     // Fetch the detail of role, just to make sure data exists inside server
     await roleStore.show({ params: { id } })
@@ -302,6 +306,22 @@ const onChangeTable = (payload: {
   })
 }
 
+/**
+ * @description Set permission of roles
+ *
+ * @param {number} id
+ *
+ * @return {Promise<void>} Promise<void>
+ */
+const setPermission = async (id: number): Promise<void> => {
+  try {
+    // Open modal set permission
+    handleModal('isSetPermissionOpen', true)
+  } catch (_) {
+    //
+  }
+}
+
 // Do when user leaving the component
 onUnmounted(() => {
   // Clear state
@@ -325,8 +345,9 @@ onUnmounted(() => {
     :list="list"
     :loading="loading"
     @edit="handleEdit"
-    @delete-confirmation="deleteConfirmation"
     @table="onChangeTable"
+    @delete-confirmation="deleteConfirmation"
+    @set-permission="setPermission"
   />
 
   <!-- Modal For Create And Edit -->
@@ -345,5 +366,13 @@ onUnmounted(() => {
     :loading="loading.isDeleteLoading"
     @confirm="handleDelete(detail?.id as number)"
     @close="handleModal('isDeleteOpen', false)"
+  />
+
+  <!-- Modal For Set Permission -->
+  <role-modal-set-permission
+    :is-open="roleOptions.modal.isSetPermissionOpen"
+    :role-name="(detail?.name as string)"
+    :list="[]"
+    @close="handleModal('isSetPermissionOpen', false)"
   />
 </template>

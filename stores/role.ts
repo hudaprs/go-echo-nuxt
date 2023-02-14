@@ -2,7 +2,6 @@
 import { defineStore } from 'pinia'
 
 // Api
-import { $api } from '~~/api/base'
 import * as api from '~~/api/role'
 
 // Constants

@@ -13,13 +13,13 @@ const todoStore = useTodoStore()
 const { loading } = storeToRefs(todoStore)
 
 // Interfaces
-interface ITodoModalCreateEditProps {
+interface IRoleModalCreateEditProps {
   isOpen: boolean
   isEdit: boolean
 }
 
 // Props
-const props = defineProps<ITodoModalCreateEditProps>()
+const props = defineProps<IRoleModalCreateEditProps>()
 
 // Emits
 const emit = defineEmits<{

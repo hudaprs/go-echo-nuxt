@@ -18,6 +18,7 @@ const props = defineProps<ITableProps>()
 // Emitters
 const emit = defineEmits<{
   (e: 'edit', value: number): void
+  (e: 'set-permission', value: number): void
   (e: 'delete-confirmation', value: number): void
   (e: 'table', value: { type: TCommonPagination; value: any }): void
 }>()
@@ -53,6 +54,17 @@ const onEdit = (id: number): void => {
 const deleteConfirmation = (id: number): void => {
   emit('delete-confirmation', id)
 }
+
+/**
+ * @description Set permission
+ *
+ * @param {number} id
+ *
+ * @return {void} void
+ */
+const setPermission = (id: number): void => {
+  emit('set-permission', id)
+}
 </script>
 
 <template>
@@ -69,10 +81,13 @@ const deleteConfirmation = (id: number): void => {
     <!-- Action -->
     <template #item.action="{ item }">
       <div class="flex items-center gap-3">
-        <v-btn color="primary" size="sm" @click="onEdit(item.id)">Edit</v-btn>
-        <v-btn color="error" size="sm" @click="deleteConfirmation(item.id)"
-          >Delete</v-btn
-        >
+        <v-btn color="primary" size="sm" @click="onEdit(item.id)"> Edit </v-btn>
+        <v-btn color="warning" size="sm" @click="setPermission(item.id)">
+          Set Permission
+        </v-btn>
+        <v-btn color="error" size="sm" @click="deleteConfirmation(item.id)">
+          Delete
+        </v-btn>
       </div>
     </template>
   </v-data-table>
