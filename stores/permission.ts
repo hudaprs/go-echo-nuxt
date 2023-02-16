@@ -9,9 +9,13 @@ import { COMMON_LOADING } from '~~/utils/constants/common/common'
 import { commonLoadingMap } from '~~/utils/helpers/common/common'
 
 // Interfaces
-import { IPermissionAttrsAssign } from '~~/utils/interfaces/permission/permissionAttrs'
+import {
+  IPermissionAttrsActionsChange,
+  IPermissionAttrsAssign
+} from '~~/utils/interfaces/permission/permissionAttrs'
 import { IPermissionResponseList } from '~~/utils/interfaces/permission/permissionResponse'
 import { IPermissionStoreState } from '~~/utils/interfaces/permission/permissionStore'
+import { IRoleWithPermission } from '~~/utils/interfaces/role/role'
 
 export const usePermissionStore = defineStore('permission', {
   state: (): IPermissionStoreState => ({
@@ -46,7 +50,15 @@ export const usePermissionStore = defineStore('permission', {
 
       try {
         const response = await api.index()
-        this.list = response.result
+        this.list = response.result.map(result => ({
+          ...result,
+          actions: {
+            create: false,
+            read: false,
+            update: false,
+            delete: false
+          }
+        }))
 
         return Promise.resolve(response)
       } catch (err) {
@@ -81,6 +93,56 @@ export const usePermissionStore = defineStore('permission', {
           false
         )
       }
+    },
+
+    /**
+     * @description Set action of permissions
+     *
+     * @param {IRoleWithPermission['permissions']} payload
+     *
+     * @return {void} void
+     */
+    SET_PERMISSION_ACTIONS: function (
+      payload: IRoleWithPermission['permissions']
+    ): void {
+      this.list = this.list.map(permission => {
+        return {
+          ...permission,
+          actions: payload.find(
+            rolePermission => rolePermission.id === permission.id
+          )?.actions || {
+            create: false,
+            read: false,
+            update: false,
+            delete: false
+          }
+        }
+      })
+    },
+
+    /**
+     * @description Set value of permission actions
+     *
+     * @param {IPermissionAttrsActionsChange} payload
+     *
+     * @return {void} void
+     */
+    SET_PERMISSION_ACTIONS_VALUE: function (
+      payload: IPermissionAttrsActionsChange
+    ): void {
+      this.list = this.list.map(permission => {
+        if (permission.id === payload.permission.id) {
+          return {
+            ...permission,
+            actions: {
+              ...permission.actions,
+              [payload.actionKey]: payload.value
+            }
+          }
+        } else {
+          return permission
+        }
+      })
     }
   }
 })

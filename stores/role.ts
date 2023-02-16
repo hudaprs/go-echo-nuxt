@@ -21,7 +21,8 @@ import {
 } from '~~/utils/interfaces/role/roleAttrs'
 import {
   IRoleResponseList,
-  IRoleResponseDetail
+  IRoleResponseDetail,
+  IRoleResponseDetailWithPermission
 } from '~~/utils/interfaces/role/roleResponse'
 import { IRoleStoreState } from '~~/utils/interfaces/role/roleStore'
 
@@ -108,11 +109,11 @@ export const useRoleStore = defineStore('role', {
      *
      * @param {IRoleAttrsShow} payload
      *
-     * @return {Promise<IRoleResponseDetail>} Promise<IRoleResponseDetail>
+     * @return {Promise<IRoleResponseDetailWithPermission>} Promise<IRoleResponseDetailWithPermission>
      */
     show: async function (
       payload: IRoleAttrsShow
-    ): Promise<IRoleResponseDetail> {
+    ): Promise<IRoleResponseDetailWithPermission> {
       this.loading = commonLoadingMap(this.loading, 'isDetailLoading', true)
 
       try {

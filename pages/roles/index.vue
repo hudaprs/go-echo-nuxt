@@ -2,6 +2,7 @@
 // Interfaces
 import { TCommonPagination } from '~~/utils/interfaces/common/common'
 import { IRoleResponseDetail } from '~~/utils/interfaces/role/roleResponse'
+import { IPermissionAttrsActionsChange } from '~~/utils/interfaces/permission/permissionAttrs'
 
 // Pinia
 import { storeToRefs } from 'pinia'
@@ -40,7 +41,16 @@ const toast = useToast()
 
 // Todo Store
 const roleStore = useRoleStore()
-const { loading, list, detail } = storeToRefs(roleStore)
+const {
+  loading: roleLoading,
+  list: roleList,
+  detail: roleDetail
+} = storeToRefs(roleStore)
+
+// Permission Store
+const permissionStore = usePermissionStore()
+const { loading: permissionLoading, list: permissionList } =
+  storeToRefs(permissionStore)
 
 // Common Store
 const commonStore = useCommonStore()
@@ -116,20 +126,31 @@ const handleModal = (
   roleOptions.modal[type] = value
 
   // Check if user closing modal
-  if (type === 'isCreateEditOpen' && !value) {
-    // Reset the form
-    resetForm({ values: ROLE_FORM_INITIAL })
+  if (!value) {
+    // Check if user closing modal create edit
+    if (type === 'isCreateEditOpen') {
+      // Reset the form
+      resetForm({ values: ROLE_FORM_INITIAL })
 
-    // Reset the edit state
-    if (roleOptions.formState.isEdit) {
-      handleFormState('isEdit', false)
+      // Reset the edit state
+      if (roleOptions.formState.isEdit) {
+        handleFormState('isEdit', false)
+      }
     }
+
+    // Check if user closing set permission modal
+    if (type === 'isSetPermissionOpen') {
+      //
+    }
+
+    permissionStore.reset('list')
+    roleStore.reset('detail')
   }
 
   // Check if user closing confirmation modal
   if (type === 'isDeleteOpen' && !value) {
     // Reset detail of role
-    if (detail !== null) {
+    if (roleDetail !== null) {
       roleStore.reset('detail')
     }
   }
@@ -317,8 +338,74 @@ const setPermission = async (id: number): Promise<void> => {
   try {
     // Open modal set permission
     handleModal('isSetPermissionOpen', true)
+
+    // Fetch role detail
+    const roleDetailResponse = await roleStore.show({ params: { id } })
+
+    // Fetch permission list
+    await permissionStore.index()
+
+    // Map permission
+    permissionStore.SET_PERMISSION_ACTIONS(
+      roleDetailResponse.result.permissions
+    )
   } catch (_) {
-    //
+    // Throw some refetch
+    commonStore.SET_MODAL_REFETCH({
+      isOpen: true,
+      message: 'Something went wrong when start to fetch role and permission',
+      confirm: () => {
+        setPermission(id)
+      }
+    })
+  }
+}
+
+/**
+ * @description Watch any change in permission actions
+ *
+ * @param {object} payload
+ *
+ * @return {void} void
+ */
+const onChangePermissionActions = (
+  payload: IPermissionAttrsActionsChange
+): void => {
+  permissionStore.SET_PERMISSION_ACTIONS_VALUE(payload)
+}
+
+/**
+ * @description Assign permissions for specific role
+ *
+ * @return {Promise<void>} Promise<void>
+ */
+const assignPermissions = async (): Promise<void> => {
+  try {
+    // Save permissions by role
+    const response = await permissionStore.store({
+      params: { roleId: roleDetail?.value?.id as number },
+      body: {
+        permissions: permissionList.value.map(permission => ({
+          id: permission.id,
+          actions: permission.actions
+        }))
+      }
+    })
+
+    // Throw Toast
+    toast.success(response.message)
+
+    // Close modal
+    handleModal('isSetPermissionOpen', false)
+  } catch (_) {
+    // Throw some refetch
+    commonStore.SET_MODAL_REFETCH({
+      isOpen: true,
+      message: 'Something went wrong when start to assign permissions to role',
+      confirm: () => {
+        assignPermissions()
+      }
+    })
   }
 }
 
@@ -327,6 +414,7 @@ onUnmounted(() => {
   // Clear state
   roleStore.reset('list')
   roleStore.reset('detail')
+  permissionStore.reset('list')
 })
 </script>
 
@@ -342,8 +430,8 @@ onUnmounted(() => {
 
   <!-- Data Table -->
   <role-table
-    :list="list"
-    :loading="loading"
+    :list="roleList"
+    :loading="roleLoading"
     @edit="handleEdit"
     @table="onChangeTable"
     @delete-confirmation="deleteConfirmation"
@@ -363,16 +451,22 @@ onUnmounted(() => {
     title="Delete Role"
     message="Are you sure want to delete role?"
     :is-open="roleOptions.modal.isDeleteOpen"
-    :loading="loading.isDeleteLoading"
-    @confirm="handleDelete(detail?.id as number)"
+    :loading="roleLoading.isDeleteLoading"
+    @confirm="handleDelete(roleDetail?.id as number)"
     @close="handleModal('isDeleteOpen', false)"
   />
 
   <!-- Modal For Set Permission -->
   <role-modal-set-permission
     :is-open="roleOptions.modal.isSetPermissionOpen"
-    :role-name="(detail?.name as string)"
-    :list="[]"
+    :role-name="(roleDetail?.name as string) || ''"
+    :list="permissionList"
+    :loading="{
+      roleLoading,
+      permissionLoading
+    }"
+    @change:actions="onChangePermissionActions"
+    @submit="assignPermissions"
     @close="handleModal('isSetPermissionOpen', false)"
   />
 </template>

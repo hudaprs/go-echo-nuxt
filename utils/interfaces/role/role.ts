@@ -1,5 +1,5 @@
 // Interfaces
-import { IPermission } from '~~/utils/interfaces/permission/permission'
+import { IPermissionWithAction } from '~~/utils/interfaces/permission/permission'
 
 export interface IRole {
   id: number
@@ -8,8 +8,8 @@ export interface IRole {
   updatedAt: string
 }
 
-export interface IRoleWithPermissions extends IRole {
-  permissions: IPermission[]
+export interface IRoleWithPermission extends IRole {
+  permissions: IPermissionWithAction[]
 }
 
 export interface IRoleForm {

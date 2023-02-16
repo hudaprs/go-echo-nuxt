@@ -1,5 +1,5 @@
 // Interfaces
 import { IResponse } from '~~/utils/interfaces//api/api'
-import { IPermission } from './permission'
+import { IPermissionWithAction } from './permission'
 
-export type IPermissionResponseList = IResponse<IPermission[]>
+export type IPermissionResponseList = IResponse<IPermissionWithAction[]>

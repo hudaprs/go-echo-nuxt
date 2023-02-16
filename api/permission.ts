@@ -24,5 +24,6 @@ export const assign = (
   payload: IPermissionAttrsAssign
 ): Promise<IPermissionResponseList> =>
   $api(`/v1/permissions/assign/${payload.params.roleId}`, {
+    method: 'PATCH',
     body: payload.body
   })
