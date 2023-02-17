@@ -8,6 +8,8 @@ export interface IRole {
   updatedAt: string
 }
 
+export interface IRoleDropdown extends Omit<IRole, 'createdAt' | 'updatedAt'> {}
+
 export interface IRoleWithPermission extends IRole {
   permissions: IPermissionWithAction[]
 }

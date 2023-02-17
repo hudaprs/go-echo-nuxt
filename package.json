@@ -8,15 +8,15 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "@nuxtjs/tailwindcss": "^6.2.0",
+    "@nuxtjs/tailwindcss": "^6.4.0",
     "@pinia-plugin-persistedstate/nuxt": "^1.0.0",
     "@types/lodash.omit": "^4.5.7",
     "nuxt": "3.0.0",
     "prettier": "^2.8.2",
-    "sass": "^1.57.1"
+    "sass": "^1.58.2"
   },
   "dependencies": {
-    "@gits-id/ui-nuxt": "^0.15.1",
+    "@gits-id/ui-nuxt": "^0.16.3",
     "@pinia/nuxt": "^0.4.6",
     "lodash.omit": "^4.5.0",
     "pinia": "^2.0.28",

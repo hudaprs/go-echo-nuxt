@@ -24,6 +24,11 @@ const menus = reactive([
     icon: 'ri-book-read-line'
   },
   {
+    text: 'User Management',
+    to: '/users',
+    icon: 'ri-file-user-line'
+  },
+  {
     text: 'Role Management',
     to: '/roles',
     icon: 'ri-profile-line'

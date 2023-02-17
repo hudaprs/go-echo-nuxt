@@ -11,7 +11,10 @@ export default defineNuxtConfig({
       BASE_URL: 'http://localhost:8000/api'
     }
   },
-  css: ['~/assets/css/tailwind.css'],
+  css: [],
+  gitsUi: {
+    css: true
+  },
   imports: {
     dirs: [
       // Scan top-level modules
