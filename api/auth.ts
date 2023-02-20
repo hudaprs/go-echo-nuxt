@@ -3,10 +3,12 @@ import { $api } from './base'
 
 // Interfaces
 import {
+  IAuthResponseActivateRole,
   IAuthResponseToken,
   IAuthResponseUser
 } from '~~/utils/interfaces/auth/authResponse'
 import {
+  IAuthAttrsActivateRole,
   IAuthAttrsLogin,
   IAuthAttrsRegister
 } from '~~/utils/interfaces/auth/authAttrs'
@@ -61,3 +63,17 @@ export const refresh = (): Promise<IAuthResponseToken> =>
  * @return {Promise<void>} Promise<void>
  */
 export const logout = (): Promise<void> => $api<void>('/v1/auth/logout')
+
+/**
+ * @description Activate user role
+ *
+ * @param {IAuthAttrsActivateRole} payload
+ *
+ * @return {Promise<IAuthResponseActivateRole>} Promise<IAuthResponseActivateRole>
+ */
+export const activateRole = (
+  payload: IAuthAttrsActivateRole
+): Promise<IAuthResponseActivateRole> =>
+  $api<IAuthResponseActivateRole>(
+    `/v1/auth/roles/activate/${payload.params.roleId}`
+  )

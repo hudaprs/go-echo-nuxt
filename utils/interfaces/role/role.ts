@@ -11,6 +11,7 @@ export interface IRole {
 export interface IRoleDropdown extends Omit<IRole, 'createdAt' | 'updatedAt'> {}
 
 export interface IRoleWithPermission extends IRole {
+  isActive: boolean
   permissions: IPermissionWithAction[]
 }
 

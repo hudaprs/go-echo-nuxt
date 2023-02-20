@@ -1,10 +1,7 @@
-export interface IAuthUser {
-  id: number
-  name: string
-  email: string
-  createdAt: string
-  updatedAt: string
-}
+// Interfaces
+import { IUserAuthenticated } from '~~/utils/interfaces/user/user'
+
+export interface IAuthUser extends IUserAuthenticated {}
 
 export interface IAuthToken {
   token: string

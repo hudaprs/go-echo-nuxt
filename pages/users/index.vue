@@ -2,6 +2,7 @@
 // Interfaces
 import { TCommonPagination } from '~~/utils/interfaces/common/common'
 import { IUserResponseDetailWithRole } from '~~/utils/interfaces/user/userResponse'
+import { IPermissionActionString } from '~~/utils/interfaces/permission/permission'
 
 // Yup
 import { object, string } from 'yup'
@@ -27,7 +28,11 @@ import { storeToRefs } from 'pinia'
 // Set page meta
 definePageMeta({
   layout: 'default',
-  middleware: ['auth']
+  middleware: ['auth'],
+  permission: {
+    code: 'USER_MANAGEMENT',
+    actions: [IPermissionActionString.READ]
+  }
 })
 
 // Set page head

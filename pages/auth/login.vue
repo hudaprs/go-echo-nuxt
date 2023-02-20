@@ -21,7 +21,7 @@ const router = useRouter()
 const toast = useToast()
 
 // Store
-const { login } = useAuthStore()
+const { login, me } = useAuthStore()
 const { loading } = storeToRefs(useAuthStore())
 
 definePageMeta({
@@ -51,7 +51,11 @@ const { handleSubmit } = useForm<IAuthAttrsLogin>({
  */
 const onSubmit = handleSubmit(async (form): Promise<void> => {
   try {
+    // Log user in
     const response = await login(form)
+
+    // Load authenticated user
+    await me()
 
     toast.success(response.message)
 

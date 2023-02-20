@@ -17,6 +17,7 @@ import {
   IAuthResponseToken
 } from '~~/utils/interfaces/auth/authResponse'
 import { IAuthStoreState } from '~~/utils/interfaces/auth/authStore'
+import { IRoleWithPermission } from '~~/utils/interfaces/role/role'
 
 // Api
 import * as api from '~~/api/auth'
@@ -29,6 +30,16 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isAuthenticated: (state): boolean => {
       return state.token !== '' && state.refreshToken !== ''
+    },
+    activeRole: (state): IRoleWithPermission | null => {
+      if (state.user) {
+        const activeRole = state.user.roles.find(
+          role => role.isActive
+        ) as IRoleWithPermission | null
+        return activeRole
+      } else {
+        return null
+      }
     }
   },
   actions: {

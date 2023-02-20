@@ -2,6 +2,12 @@
 // Pinia
 import { storeToRefs } from 'pinia'
 
+// Interfaces
+import { IPermissionActionString } from '~~/utils/interfaces/permission/permission'
+
+// Composables
+const { checkMenuPermissions } = useRoleChecker()
+
 // Store
 const authStore = useAuthStore()
 const commonStore = useCommonStore()
@@ -16,22 +22,30 @@ const menus = reactive([
   {
     text: 'Dashboard',
     to: '/',
-    icon: 'ri:home-2-line'
+    icon: 'ri:home-2-line',
+    permissions: []
   },
   {
     text: 'Todo',
     to: '/todos',
-    icon: 'ri-book-read-line'
+    icon: 'ri-book-read-line',
+    permissions: [{ code: 'TODO', actions: [IPermissionActionString.READ] }]
   },
   {
     text: 'User Management',
     to: '/users',
-    icon: 'ri-file-user-line'
+    icon: 'ri-file-user-line',
+    permissions: [
+      { code: 'USER_MANAGEMENT', actions: [IPermissionActionString.READ] }
+    ]
   },
   {
     text: 'Role Management',
     to: '/roles',
-    icon: 'ri-profile-line'
+    icon: 'ri-profile-line',
+    permissions: [
+      { code: 'ROLE_MANAGEMENT', actions: [IPermissionActionString.READ] }
+    ]
   }
 ])
 
@@ -47,7 +61,9 @@ const onLogout = async (): Promise<void> => {
 
     // Redirect to login
     router.replace({ name: 'auth-login' })
-  } catch (_) {}
+  } catch (_) {
+    //
+  }
 }
 </script>
 
@@ -71,7 +87,10 @@ const onLogout = async (): Promise<void> => {
       <hr />
 
       <div class="ml-3">
-        <template v-for="menu in menus" :key="menu.to">
+        <template
+          v-for="menu in checkMenuPermissions({ menus })"
+          :key="menu.to"
+        >
           <v-menu
             :menu="menu"
             dark-bg-color=""

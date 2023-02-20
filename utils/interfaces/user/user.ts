@@ -1,5 +1,5 @@
 // Interfaces
-import { IRole } from '~~/utils/interfaces/role/role'
+import { IRole, IRoleWithPermission } from '~~/utils/interfaces/role/role'
 
 // GITS UI
 import { VMultiSelectItem } from '@gits-id/multi-select/src/types'
@@ -14,6 +14,10 @@ export interface IUser {
 
 export interface IUserWithRole extends IUser {
   roles: IRole[]
+}
+
+export interface IUserAuthenticated extends IUser {
+  roles: IRoleWithPermission[]
 }
 
 export interface IUserForm {

@@ -3,6 +3,7 @@
 import { TCommonPagination } from '~~/utils/interfaces/common/common'
 import { IRoleResponseDetail } from '~~/utils/interfaces/role/roleResponse'
 import { IPermissionAttrsActionsChange } from '~~/utils/interfaces/permission/permissionAttrs'
+import { IPermissionActionString } from '~~/utils/interfaces/permission/permission'
 
 // Pinia
 import { storeToRefs } from 'pinia'
@@ -28,7 +29,11 @@ import omit from 'lodash.omit'
 // Set page meta
 definePageMeta({
   layout: 'default',
-  middleware: ['auth']
+  middleware: ['auth'],
+  permission: {
+    code: 'ROLE_MANAGEMENT',
+    actions: [IPermissionActionString.READ]
+  }
 })
 
 // Set page head

@@ -5,9 +5,16 @@ export interface IPermissionAction {
   delete: boolean
 }
 
+export enum IPermissionActionString {
+  CREATE = 'create',
+  READ = 'read',
+  UPDATE = 'update',
+  DELETE = 'delete'
+}
+
 export interface IPermission {
   id: number
-  name: string
+  code: string
   createdAt: string
   updatedAt: string
 }

@@ -1,5 +1,9 @@
+// Composables
+import { IPermissionMenuWithAction } from '~~/composables/useRoleChecker'
+
 export default defineNuxtRouteMiddleware(to => {
   const auth = useAuthStore()
+  const { checkMenuPermissionsByRoute } = useRoleChecker()
   const router = useRouter()
   const authRoutes: string[] = ['auth-register', 'auth-login']
 
@@ -21,5 +25,18 @@ export default defineNuxtRouteMiddleware(to => {
     authRoutes.includes(to.name as string)
   ) {
     return router.replace({ name: 'index' })
+  }
+
+  // Check if user already authenticated, but want to access private route
+  if (auth.isAuthenticated) {
+    const routePermission =
+      (to.meta.permission as IPermissionMenuWithAction) || undefined
+
+    if (routePermission) {
+      const isPassed = checkMenuPermissionsByRoute(routePermission)
+      if (!isPassed) {
+        return router.replace({ name: 'index' })
+      }
+    }
   }
 })

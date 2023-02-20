@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Interfaces
 import { ITodoResponseDetail } from '~~/utils/interfaces/todo/todoResponse'
+import { IPermissionActionString } from '~~/utils/interfaces/permission/permission'
 
 // Pinia
 import { storeToRefs } from 'pinia'
@@ -26,7 +27,11 @@ import omit from 'lodash.omit'
 // Set page meta
 definePageMeta({
   layout: 'default',
-  middleware: ['auth']
+  middleware: ['auth'],
+  permission: {
+    code: 'TODO',
+    actions: [IPermissionActionString.READ]
+  }
 })
 
 // Set page head
