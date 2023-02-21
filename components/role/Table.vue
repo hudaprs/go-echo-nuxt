@@ -6,10 +6,12 @@ import { VDataTableHeader } from '@gits-id/table/dist/types'
 import { IRoleResponseList } from '~~/utils/interfaces/role/roleResponse'
 import { ICommonLoading } from '~~/utils/interfaces'
 import { TCommonPagination } from '~~/utils/interfaces/common/common'
+import { IPermissionAction } from '~~/utils/interfaces/permission/permission'
 
 interface ITableProps {
   list: IRoleResponseList['result']
   loading: ICommonLoading
+  permissionActions: IPermissionAction
 }
 
 // Props
@@ -23,14 +25,22 @@ const emit = defineEmits<{
   (e: 'table', value: { type: TCommonPagination; value: any }): void
 }>()
 
-// Common State
-const tableOptions = reactive<{ headers: VDataTableHeader[] }>({
-  headers: [
-    { value: 'name', text: 'Name' },
-    { value: 'createdAt', text: 'Created At' },
-    { value: 'updatedAt', text: 'Updated At' },
-    { value: 'action', text: 'Action' }
-  ]
+// Computed
+const computedTableOptions = computed((): { headers: VDataTableHeader[] } => {
+  return {
+    headers: [
+      { value: 'name', text: 'Name' },
+      { value: 'createdAt', text: 'Created At' },
+      { value: 'updatedAt', text: 'Updated At' },
+      { value: 'action', text: 'Action' }
+    ].filter(header => {
+      if (props.permissionActions.update || props.permissionActions.delete) {
+        return header
+      } else {
+        return !['action'].includes(header.value)
+      }
+    })
+  }
 })
 
 /**
@@ -69,7 +79,7 @@ const setPermission = (id: number): void => {
 
 <template>
   <v-data-table
-    :headers="tableOptions.headers"
+    :headers="computedTableOptions.headers"
     :items="props.list.rows"
     :loading="loading.isDefaultLoading"
     :total-items="props.list.totalRows"
@@ -81,11 +91,28 @@ const setPermission = (id: number): void => {
     <!-- Action -->
     <template #item.action="{ item }">
       <div class="flex items-center gap-3">
-        <v-btn color="primary" size="sm" @click="onEdit(item.id)"> Edit </v-btn>
-        <v-btn color="warning" size="sm" @click="setPermission(item.id)">
+        <v-btn
+          color="primary"
+          size="sm"
+          @click="onEdit(item.id)"
+          v-if="props.permissionActions.update"
+        >
+          Edit
+        </v-btn>
+        <v-btn
+          color="warning"
+          size="sm"
+          @click="setPermission(item.id)"
+          v-if="props.permissionActions.create"
+        >
           Set Permission
         </v-btn>
-        <v-btn color="error" size="sm" @click="deleteConfirmation(item.id)">
+        <v-btn
+          color="error"
+          size="sm"
+          @click="deleteConfirmation(item.id)"
+          v-if="props.permissionActions.delete"
+        >
           Delete
         </v-btn>
       </div>

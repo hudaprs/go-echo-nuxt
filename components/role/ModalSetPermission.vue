@@ -30,15 +30,17 @@ const emit = defineEmits<{
   (e: 'change:actions', value: IPermissionAttrsActionsChange): void
 }>()
 
-// Common State
-const tableOptions = reactive<{ headers: VDataTableHeader[] }>({
-  headers: [
-    { value: 'code', text: 'Code' },
-    { value: 'actions.create', text: 'Create' },
-    { value: 'actions.read', text: 'Read' },
-    { value: 'actions.update', text: 'Update' },
-    { value: 'actions.delete', text: 'Delete' }
-  ]
+// Computed
+const computedTableOptions = computed((): { headers: VDataTableHeader[] } => {
+  return {
+    headers: [
+      { value: 'code', text: 'Code' },
+      { value: 'actions.create', text: 'Create', align: 'center' },
+      { value: 'actions.read', text: 'Read', align: 'center' },
+      { value: 'actions.update', text: 'Update', align: 'center' },
+      { value: 'actions.delete', text: 'Delete', align: 'center' }
+    ]
+  }
 })
 
 // Computed
@@ -108,13 +110,14 @@ const onSubmit = async (): Promise<void> => {
     <!-- Content -->
     <div v-if="!computedModalOptions.loading">
       <v-data-table
-        :headers="tableOptions.headers"
+        :headers="computedTableOptions.headers"
         :items="props.list"
         hide-footer
       >
         <!-- Create -->
         <template #item.actions.create="{ item }">
           <v-checkbox
+            class="flex items-center justify-center text-center"
             :model-value="item.actions.create"
             @update:model-value="
               onChangeActions({
@@ -129,6 +132,7 @@ const onSubmit = async (): Promise<void> => {
         <!-- Read -->
         <template #item.actions.read="{ item }">
           <v-checkbox
+            class="flex items-center justify-center text-center"
             :model-value="item.actions.read"
             @update:model-value="
               onChangeActions({
@@ -143,6 +147,7 @@ const onSubmit = async (): Promise<void> => {
         <!-- Update -->
         <template #item.actions.update="{ item }">
           <v-checkbox
+            class="flex items-center justify-center text-center"
             :model-value="item.actions.update"
             @update:model-value="
               onChangeActions({
@@ -157,6 +162,7 @@ const onSubmit = async (): Promise<void> => {
         <!-- Delete -->
         <template #item.actions.delete="{ item }">
           <v-checkbox
+            class="flex items-center justify-center text-center"
             :model-value="item.actions.delete"
             @update:model-value="
               onChangeActions({

@@ -72,6 +72,8 @@ const roleOptions = reactive({
 
 // Composables
 const { paginationOptions, onChangePagination } = usePagination()
+const { checkPermissionActions } = useRoleChecker()
+const permissionActions = checkPermissionActions('ROLE_MANAGEMENT')
 
 // Form
 const validationSchema = object({
@@ -428,7 +430,12 @@ onUnmounted(() => {
   <div class="mb-4 flex justify-between items-center px-2">
     <p class="text-xl font-bold">Role List</p>
 
-    <v-btn @click="handleModal('isCreateEditOpen', true)"> Create Role </v-btn>
+    <v-btn
+      @click="handleModal('isCreateEditOpen', true)"
+      v-if="permissionActions.create"
+    >
+      Create Role
+    </v-btn>
   </div>
 
   <hr />
@@ -437,6 +444,7 @@ onUnmounted(() => {
   <role-table
     :list="roleList"
     :loading="roleLoading"
+    :permission-actions="permissionActions"
     @edit="handleEdit"
     @table="onChangeTable"
     @delete-confirmation="deleteConfirmation"

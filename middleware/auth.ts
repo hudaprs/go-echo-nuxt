@@ -3,7 +3,7 @@ import { IPermissionMenuWithAction } from '~~/composables/useRoleChecker'
 
 export default defineNuxtRouteMiddleware(to => {
   const auth = useAuthStore()
-  const { checkMenuPermissionsByRoute } = useRoleChecker()
+  const { checkPermission } = useRoleChecker()
   const router = useRouter()
   const authRoutes: string[] = ['auth-register', 'auth-login']
 
@@ -33,7 +33,7 @@ export default defineNuxtRouteMiddleware(to => {
       (to.meta.permission as IPermissionMenuWithAction) || undefined
 
     if (routePermission) {
-      const isPassed = checkMenuPermissionsByRoute(routePermission)
+      const isPassed = checkPermission(routePermission)
       if (!isPassed) {
         return router.replace({ name: 'index' })
       }

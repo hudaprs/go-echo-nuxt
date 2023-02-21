@@ -6,10 +6,12 @@ import { VDataTableHeader } from '@gits-id/table/dist/types'
 import { IUserResponseList } from '~~/utils/interfaces/user/userResponse'
 import { ICommonLoading } from '~~/utils/interfaces'
 import { TCommonPagination } from '~~/utils/interfaces/common/common'
+import { IPermissionAction } from '~~/utils/interfaces/permission/permission'
 
 interface ITableProps {
   list: IUserResponseList['result']
   loading: ICommonLoading
+  permissionActions: IPermissionAction
 }
 
 // Props
@@ -30,7 +32,13 @@ const tableOptions = reactive<{ headers: VDataTableHeader[] }>({
     { value: 'createdAt', text: 'Created At' },
     { value: 'updatedAt', text: 'Updated At' },
     { value: 'action', text: 'Action' }
-  ]
+  ].filter(header => {
+    if (props.permissionActions.update || props.permissionActions.delete) {
+      return header
+    } else {
+      return !['action'].includes(header.value)
+    }
+  })
 })
 
 /**
@@ -70,8 +78,20 @@ const onDelete = (id: number): void => {
     <!-- Action -->
     <template #item.action="{ item }">
       <div class="flex items-center gap-3">
-        <v-btn color="primary" size="sm" @click="onEdit(item.id)"> Edit </v-btn>
-        <v-btn color="error" size="sm" @click="onDelete(item.id)">
+        <v-btn
+          color="primary"
+          size="sm"
+          @click="onEdit(item.id)"
+          v-if="props.permissionActions.update"
+        >
+          Edit
+        </v-btn>
+        <v-btn
+          color="error"
+          size="sm"
+          @click="onDelete(item.id)"
+          v-if="props.permissionActions.delete"
+        >
           Delete
         </v-btn>
       </div>

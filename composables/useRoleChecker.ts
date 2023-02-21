@@ -26,6 +26,8 @@ export const useRoleChecker = () => {
   const { activeRole } = storeToRefs(authStore)
   const activeRolePermissions = activeRole?.value?.permissions || []
 
+  // Computed
+
   /**
    * @description Check active role permission
    *
@@ -83,7 +85,7 @@ export const useRoleChecker = () => {
    *
    * @return {boolean} boolean
    */
-  const checkMenuPermissionsByRoute = (
+  const checkPermission = (
     routePermission: IPermissionMenuWithAction
   ): boolean => {
     return checkActiveRolePermission(
@@ -92,9 +94,38 @@ export const useRoleChecker = () => {
     )
   }
 
+  /**
+   * @description Check actions
+   *
+   * @param {string} code
+   *
+   * @return {IPermissionAction} IPermissionAction
+   */
+  const checkPermissionActions = (code: string): IPermissionAction => {
+    return {
+      create: checkPermission({
+        code,
+        actions: [IPermissionActionString.CREATE]
+      }),
+      read: checkPermission({
+        code,
+        actions: [IPermissionActionString.READ]
+      }),
+      update: checkPermission({
+        code,
+        actions: [IPermissionActionString.UPDATE]
+      }),
+      delete: checkPermission({
+        code,
+        actions: [IPermissionActionString.DELETE]
+      })
+    }
+  }
+
   return {
     checkActiveRolePermission,
     checkMenuPermissions,
-    checkMenuPermissionsByRoute
+    checkPermission,
+    checkPermissionActions
   }
 }

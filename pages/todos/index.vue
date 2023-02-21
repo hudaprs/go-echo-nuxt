@@ -2,6 +2,7 @@
 // Interfaces
 import { ITodoResponseDetail } from '~~/utils/interfaces/todo/todoResponse'
 import { IPermissionActionString } from '~~/utils/interfaces/permission/permission'
+import { TCommonPagination } from '~~/utils/interfaces/common/common'
 
 // Pinia
 import { storeToRefs } from 'pinia'
@@ -65,8 +66,15 @@ const { values, validate, resetForm } = useForm<ITodoForm>({
   initialValues: TODO_FORM_INITIAL
 })
 
+// Composables
+const { paginationOptions, onChangePagination } = usePagination()
+const { checkPermissionActions } = useRoleChecker()
+const permissionActions = checkPermissionActions('TODO')
+
 // Load data
-const { refresh, error } = await useLazyAsyncData(() => todoStore.index())
+const { refresh, error } = await useLazyAsyncData(() =>
+  todoStore.index({ params: paginationOptions })
+)
 
 // Watch if theres any error when fetching todo list
 watch(
@@ -112,7 +120,7 @@ const handleModal = (
   todoOptions.modal[type] = value
 
   // Check if user closing modal
-  if (type === 'isCreateEditOpen' && !value) {
+  if (type === 'isCreateEditOpen' && value) {
     // Reset the form
     resetForm({ values: TODO_FORM_INITIAL })
 
@@ -260,7 +268,7 @@ const deleteConfirmation = async (id: number): Promise<void> => {
  */
 const handleDelete = async (id: number): Promise<void> => {
   try {
-    const response = await todoStore.delete({ params: { id } })
+    const response = await todoStore.destroy({ params: { id } })
 
     // Throw Toast
     toast.success(response.message)
@@ -285,6 +293,22 @@ const handleDelete = async (id: number): Promise<void> => {
   }
 }
 
+/**
+ * @description Watch any change in table
+ *
+ * @param {any} payload
+ *
+ * @return {void} void
+ */
+const onChangeTable = (payload: {
+  type: TCommonPagination
+  value: any
+}): void => {
+  onChangePagination(payload.type, payload.value, _paginationOptions => {
+    todoStore.index({ params: _paginationOptions })
+  })
+}
+
 // Do when user leaving the component
 onUnmounted(() => {
   // Clear state
@@ -298,7 +322,12 @@ onUnmounted(() => {
   <div class="mb-4 flex justify-between items-center px-2">
     <p class="text-xl font-bold">Todo List</p>
 
-    <v-btn @click="handleModal('isCreateEditOpen', true)"> Create Todo </v-btn>
+    <v-btn
+      @click="handleModal('isCreateEditOpen', true)"
+      v-if="permissionActions.create"
+    >
+      Create Todo
+    </v-btn>
   </div>
 
   <hr />
@@ -307,7 +336,9 @@ onUnmounted(() => {
   <todo-table
     :list="list"
     :loading="loading"
+    :permission-actions="permissionActions"
     @edit="handleEdit"
+    @table="onChangeTable"
     @delete-confirmation="deleteConfirmation"
   />
 
@@ -324,7 +355,8 @@ onUnmounted(() => {
     title="Delete Todo"
     message="Are you sure want to delete todo?"
     :is-open="todoOptions.modal.isDeleteOpen"
-    :loading="detail?.loading?.isDeleteLoading"
+    :loading="loading.isDeleteLoading"
+    @table="onChangeTable"
     @confirm="handleDelete(detail?.id as number)"
     @close="handleModal('isDeleteOpen', false)"
   />

@@ -2,10 +2,13 @@
 import { defineStore } from 'pinia'
 
 // Api
-import { $api } from '~~/api/base'
+import * as api from '~~/api/todo'
 
 // Constants
-import { COMMON_LOADING } from '~~/utils/constants/common/common'
+import {
+  COMMON_LOADING,
+  COMMON_PAGINATION
+} from '~~/utils/constants/common/common'
 import {
   commonLoadingDataMap,
   commonLoadingMap
@@ -13,9 +16,10 @@ import {
 
 // Interfaces
 import {
-  ITodoAttrsCreate,
+  ITodoAttrsIndex,
+  ITodoAttrsStore,
   ITodoAttrsUpdate,
-  ITodoAttrsDelete,
+  ITodoAttrsDestroy,
   ITodoAttrsShow
 } from '~~/utils/interfaces/todo/todoAttrs'
 import {
@@ -27,7 +31,7 @@ import { ITodoStoreState } from '~~/utils/interfaces/todo/todoStore'
 export const useTodoStore = defineStore('todo', {
   state: (): ITodoStoreState => ({
     loading: COMMON_LOADING,
-    list: [],
+    list: { ...COMMON_PAGINATION, rows: [] },
     detail: null
   }),
   actions: {
@@ -41,7 +45,7 @@ export const useTodoStore = defineStore('todo', {
     reset: function (stateKey: 'list' | 'detail'): void {
       switch (stateKey) {
         case 'list':
-          this.list = []
+          this.list = { ...COMMON_PAGINATION, rows: [] }
           break
         case 'detail':
           this.detail = null
@@ -54,14 +58,17 @@ export const useTodoStore = defineStore('todo', {
     /**
      * @description Get list of todo
      *
+     * @param {ITodoAttrsIndex} payload
+     *
      * @return {Promise<ITodoResponseList>} Promise<ITodoResponseList>
      */
-    index: async function (): Promise<ITodoResponseList> {
+    index: async function (
+      payload: ITodoAttrsIndex
+    ): Promise<ITodoResponseList> {
       this.loading = commonLoadingMap(this.loading, 'isDefaultLoading', true)
 
       try {
-        const response = await $api<ITodoResponseList>('/v1/todos')
-
+        const response = await api.index(payload)
         this.list = response.result
 
         return Promise.resolve(response)
@@ -75,20 +82,17 @@ export const useTodoStore = defineStore('todo', {
     /**
      * @description Create todo
      *
-     * @param {ITodoAttrsCreate} payload
+     * @param {ITodoAttrsStore} payload
      *
      * @return {Promise<ITodoResponseDetail>} Promise<ITodoResponseDetail>
      */
     create: async function (
-      payload: ITodoAttrsCreate
+      payload: ITodoAttrsStore
     ): Promise<ITodoResponseDetail> {
       this.loading = commonLoadingMap(this.loading, 'isCreateEditLoading', true)
 
       try {
-        const response = await $api<ITodoResponseDetail>('/v1/todos', {
-          method: 'POST',
-          body: payload.body
-        })
+        const response = await api.store(payload)
 
         return Promise.resolve(response)
       } catch (err) {
@@ -113,18 +117,9 @@ export const useTodoStore = defineStore('todo', {
       payload: ITodoAttrsShow
     ): Promise<ITodoResponseDetail> {
       this.loading = commonLoadingMap(this.loading, 'isDetailLoading', true)
-      this.list = commonLoadingDataMap(
-        payload.params.id,
-        this.list,
-        'isDetailLoading',
-        true
-      )
 
       try {
-        const response = await $api<ITodoResponseDetail>(
-          `/v1/todos/${payload.params.id}`
-        )
-
+        const response = await api.show(payload)
         this.detail = response.result
 
         return Promise.resolve(response)
@@ -132,12 +127,6 @@ export const useTodoStore = defineStore('todo', {
         return Promise.reject(err)
       } finally {
         this.loading = commonLoadingMap(this.loading, 'isDetailLoading', false)
-        this.list = commonLoadingDataMap(
-          payload.params.id,
-          this.list,
-          'isDetailLoading',
-          false
-        )
       }
     },
 
@@ -154,13 +143,7 @@ export const useTodoStore = defineStore('todo', {
       this.loading = commonLoadingMap(this.loading, 'isCreateEditLoading', true)
 
       try {
-        const response = await $api<ITodoResponseDetail>(
-          `/v1/todos/${payload.params.id}`,
-          {
-            method: 'PATCH',
-            body: payload.body
-          }
-        )
+        const response = await api.update(payload)
 
         return Promise.resolve(response)
       } catch (err) {
@@ -177,38 +160,23 @@ export const useTodoStore = defineStore('todo', {
     /**
      * @description Delete todo
      *
-     * @param {ITodoAttrsDelete} payload
+     * @param {ITodoAttrsDestroy} payload
      *
      * @return {Promise<ITodoResponseDetail>} Promise<ITodoResponseDetail>
      */
-    delete: async function (
-      payload: ITodoAttrsDelete
+    destroy: async function (
+      payload: ITodoAttrsDestroy
     ): Promise<ITodoResponseDetail> {
-      this.list = commonLoadingDataMap(
-        payload.params.id,
-        this.list,
-        'isDeleteLoading',
-        true
-      )
+      this.loading = commonLoadingMap(this.loading, 'isDeleteLoading', true)
 
       try {
-        const response = await $api<ITodoResponseDetail>(
-          `/v1/todos/${payload.params.id}`,
-          {
-            method: 'delete'
-          }
-        )
+        const response = await api.destroy(payload)
 
         return Promise.resolve(response)
       } catch (err) {
         return Promise.reject(err)
       } finally {
-        this.list = commonLoadingDataMap(
-          payload.params.id,
-          this.list,
-          'isDeleteLoading',
-          false
-        )
+        this.loading = commonLoadingMap(this.loading, 'isDeleteLoading', false)
       }
     }
   }

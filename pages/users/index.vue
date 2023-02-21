@@ -61,6 +61,8 @@ const userOptions = reactive({
 
 // Composables
 const { paginationOptions, onChangePagination } = usePagination()
+const { checkPermissionActions } = useRoleChecker()
+const permissionActions = checkPermissionActions('USER_MANAGEMENT')
 
 // Form
 const validationSchema = object({
@@ -362,7 +364,12 @@ onUnmounted(() => {
   <div class="mb-4 flex justify-between items-center px-2">
     <p class="text-xl font-bold">User List</p>
 
-    <v-btn @click="handleModal('isCreateEditOpen', true)"> Create User </v-btn>
+    <v-btn
+      @click="handleModal('isCreateEditOpen', true)"
+      v-if="permissionActions.create"
+    >
+      Create User
+    </v-btn>
   </div>
 
   <hr />
@@ -371,6 +378,7 @@ onUnmounted(() => {
   <user-table
     :list="list"
     :loading="loading"
+    :permission-actions="permissionActions"
     @edit="handleEdit"
     @table="onChangeTable"
     @delete="deleteConfirmation"
