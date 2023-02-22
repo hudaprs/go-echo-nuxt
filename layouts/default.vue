@@ -4,21 +4,29 @@ import { storeToRefs } from 'pinia'
 
 // Interfaces
 import { IPermissionActionString } from '~~/utils/interfaces/permission/permission'
+import { IAuthFormChangeRole } from '~~/utils/interfaces/auth/auth'
+
+// Vue Toastification
+import { useToast } from 'vue-toastification'
 
 // Composables
 const { checkMenuPermissions } = useRoleChecker()
+
+// Toast
+const toast = useToast()
 
 // Store
 const authStore = useAuthStore()
 const commonStore = useCommonStore()
 const { modalRefetchOptions } = storeToRefs(commonStore)
+const { loading, roleList, activeRole } = storeToRefs(authStore)
 
 // Router
 const router = useRouter()
 
 // State
 const isSidebarOpen = ref(true)
-const menus = reactive([
+const menus = ref([
   {
     text: 'Dashboard',
     to: '/',
@@ -49,6 +57,26 @@ const menus = reactive([
   }
 ])
 
+const defaultOptions = reactive({
+  modal: { isChangeRoleOpen: false }
+})
+
+onMounted(() => {
+  menus.value = checkMenuPermissions({ menus: menus.value })
+})
+
+/**
+ * @description Modal handler
+ *
+ * @param {string} type
+ * @param {boolean} value
+ *
+ * @return {void} void
+ */
+const handleModal = (type: 'isChangeRoleOpen', value: boolean): void => {
+  defaultOptions.modal[type] = value
+}
+
 /**
  * @description Logout an user
  *
@@ -61,6 +89,34 @@ const onLogout = async (): Promise<void> => {
 
     // Redirect to login
     router.replace({ name: 'auth-login' })
+  } catch (_) {
+    //
+  }
+}
+
+/**
+ * @description Change role handler
+ *
+ * @return {Promise<void>} Promise<void>
+ */
+const onChangeRole = async (form: IAuthFormChangeRole): Promise<void> => {
+  try {
+    // Change current active role to new one
+    const response = await authStore.activateRole({
+      params: { roleId: form.role.value }
+    })
+
+    // Load current user
+    await authStore.me()
+
+    toast.success(response.message)
+
+    handleModal('isChangeRoleOpen', false)
+
+    menus.value = checkMenuPermissions({ menus: menus.value })
+
+    console.log('### menus', menus.value)
+    console.log('### menus func', checkMenuPermissions({ menus: menus.value }))
   } catch (_) {
     //
   }
@@ -87,10 +143,7 @@ const onLogout = async (): Promise<void> => {
       <hr />
 
       <div class="ml-3">
-        <template
-          v-for="menu in checkMenuPermissions({ menus })"
-          :key="menu.to"
-        >
+        <template v-for="menu in menus" :key="menu.to">
           <v-menu
             :menu="menu"
             dark-bg-color=""
@@ -108,11 +161,23 @@ const onLogout = async (): Promise<void> => {
       <!-- Navbar -->
       <v-app-bar shadow style="height: 70px" class="mb-4">
         <div class="flex justify-between items-center w-full">
+          <!-- Left Side -->
           <div>
             <img src="~/assets/img/gits.webp" alt="GITS.id" width="90" />
           </div>
-          <div class="cursor-pointer text-blue-400" @click="onLogout">
-            Logout
+
+          <!-- Right Side -->
+          <div class="flex gap-8">
+            <div
+              class="cursor-pointer text-blue-400"
+              @click="handleModal('isChangeRoleOpen', true)"
+            >
+              Change Role
+            </div>
+
+            <div class="cursor-pointer text-blue-400" @click="onLogout">
+              Logout
+            </div>
           </div>
         </div>
       </v-app-bar>
@@ -130,6 +195,16 @@ const onLogout = async (): Promise<void> => {
       :is-open="modalRefetchOptions.isOpen"
       @confirm="commonStore.CLEAR_MODAL_REFETCH(modalRefetchOptions.confirm)"
       @close="commonStore.CLEAR_MODAL_REFETCH(modalRefetchOptions.close)"
+    />
+
+    <!-- Modal Change Role -->
+    <auth-form-modal-change-role
+      :loading="loading"
+      :isOpen="defaultOptions.modal.isChangeRoleOpen"
+      :role-list="roleList"
+      :previous-active-role="activeRole"
+      @submit="onChangeRole"
+      @close="handleModal('isChangeRoleOpen', false)"
     />
   </div>
 </template>

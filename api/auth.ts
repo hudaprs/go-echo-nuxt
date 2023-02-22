@@ -16,29 +16,29 @@ import {
 /**
  * @description Register an user
  *
- * @param {IAuthAttrsRegister} form
+ * @param {IAuthAttrsRegister} payload
  *
  * @return {Promise<IAuthResponseUser>} Promise<IAuthResponseUser>
  */
 export const register = (
-  form: IAuthAttrsRegister
+  payload: IAuthAttrsRegister
 ): Promise<IAuthResponseUser> =>
   $api<IAuthResponseUser>('/v1/auth/register', {
     method: 'post',
-    body: form
+    body: payload.body
   })
 
 /**
  * @description Login an user
  *
- * @param {IAuthAttrsLogin} form
+ * @param {IAuthAttrsLogin} payload
  *
  * @return {Promise<IAuthResponseToken>} Promise<IAuthResponseToken>
  */
-export const login = (form: IAuthAttrsLogin): Promise<IAuthResponseToken> =>
+export const login = (payload: IAuthAttrsLogin): Promise<IAuthResponseToken> =>
   $api<IAuthResponseToken>('/v1/auth/login', {
     method: 'post',
-    body: form
+    body: payload.body
   })
 
 /**
@@ -75,5 +75,6 @@ export const activateRole = (
   payload: IAuthAttrsActivateRole
 ): Promise<IAuthResponseActivateRole> =>
   $api<IAuthResponseActivateRole>(
-    `/v1/auth/roles/activate/${payload.params.roleId}`
+    `/v1/auth/roles/activate/${payload.params.roleId}`,
+    { method: 'PATCH' }
   )

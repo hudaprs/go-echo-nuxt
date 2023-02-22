@@ -1,12 +1,6 @@
 <script setup lang="ts">
-// Vue Toastification
-import { useToast } from 'vue-toastification'
-
 // Pinia
 import { storeToRefs } from 'pinia'
-
-// Toast
-const toast = useToast()
 
 // Store
 const todoStore = useTodoStore()

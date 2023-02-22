@@ -9,12 +9,14 @@ import { commonLoadingMap } from '~~/utils/helpers/common/common'
 
 // Interfaces
 import {
+  IAuthAttrsActivateRole,
   IAuthAttrsLogin,
   IAuthAttrsRegister
 } from '~~/utils/interfaces/auth/authAttrs'
 import {
   IAuthResponseUser,
-  IAuthResponseToken
+  IAuthResponseToken,
+  IAuthResponseActivateRole
 } from '~~/utils/interfaces/auth/authResponse'
 import { IAuthStoreState } from '~~/utils/interfaces/auth/authStore'
 import { IRoleWithPermission } from '~~/utils/interfaces/role/role'
@@ -28,18 +30,28 @@ export const useAuthStore = defineStore('auth', {
   },
   state: (): IAuthStoreState => AUTH_STATE_INITIAL,
   getters: {
-    isAuthenticated: (state): boolean => {
-      return state.token !== '' && state.refreshToken !== ''
-    },
     activeRole: (state): IRoleWithPermission | null => {
       if (state.user) {
-        const activeRole = state.user.roles.find(
-          role => role.isActive
-        ) as IRoleWithPermission | null
+        const activeRole = (state.user.roles.find(role => role.isActive) ||
+          null) as IRoleWithPermission | null
         return activeRole
       } else {
         return null
       }
+    },
+    roleList: function (state): { text: string; value: any }[] {
+      return (
+        state.user?.roles?.map(role => ({ value: role.id, text: role.name })) ||
+        []
+      )
+    },
+    isAuthenticated: function (state): boolean {
+      return (
+        state.token !== '' &&
+        state.refreshToken !== '' &&
+        state.user !== null &&
+        this.activeRole !== null
+      )
     }
   },
   actions: {
@@ -160,6 +172,33 @@ export const useAuthStore = defineStore('auth', {
         return Promise.reject(err)
       } finally {
         this.loading = commonLoadingMap(this.loading, 'isDeleteLoading', false)
+      }
+    },
+
+    /**
+     * @description Change role user
+     *
+     * @param {IAuthAttrsActivateRole} payload
+     *
+     * @return {Promise<void>} Promise<void>
+     */
+    activateRole: async function (
+      payload: IAuthAttrsActivateRole
+    ): Promise<IAuthResponseActivateRole> {
+      this.loading = commonLoadingMap(this.loading, 'isCreateEditLoading', true)
+
+      try {
+        const response = await api.activateRole(payload)
+
+        return Promise.resolve(response)
+      } catch (err) {
+        return Promise.reject(err)
+      } finally {
+        this.loading = commonLoadingMap(
+          this.loading,
+          'isCreateEditLoading',
+          false
+        )
       }
     }
   }

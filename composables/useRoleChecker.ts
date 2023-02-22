@@ -26,8 +26,6 @@ export const useRoleChecker = () => {
   const { activeRole } = storeToRefs(authStore)
   const activeRolePermissions = activeRole?.value?.permissions || []
 
-  // Computed
-
   /**
    * @description Check active role permission
    *

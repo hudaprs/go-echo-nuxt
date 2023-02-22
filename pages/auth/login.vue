@@ -1,28 +1,15 @@
 <script setup lang="ts">
-// Yup
-import { object, string } from 'yup'
-
-// Vee Validate
-import { useForm } from 'vee-validate'
-
 // Interfaces
-import { IAuthAttrsLogin } from '~/utils/interfaces/auth/authAttrs'
+import {
+  IAuthFormLogin,
+  IAuthFormChangeRole
+} from '~/utils/interfaces/auth/auth'
 
 // Vue Toastification
 import { useToast } from 'vue-toastification'
 
 // Pinia
 import { storeToRefs } from 'pinia'
-
-// Router
-const router = useRouter()
-
-// Toast
-const toast = useToast()
-
-// Store
-const { login, me } = useAuthStore()
-const { loading } = storeToRefs(useAuthStore())
 
 definePageMeta({
   layout: 'auth',
@@ -33,29 +20,60 @@ useHead({
   title: 'Login'
 })
 
-// Form
-const validationSchema = object({
-  email: string().required().email().label('Email'),
-  password: string().required().label('Password')
-})
-const { handleSubmit } = useForm<IAuthAttrsLogin>({
-  validationSchema
+// Router
+const router = useRouter()
+
+// Toast
+const toast = useToast()
+
+// Store
+const authStore = useAuthStore()
+const { loading, activeRole, roleList } = storeToRefs(authStore)
+
+// Common State
+const authOptions = reactive({
+  formState: { isLoggedIn: false }
 })
 
 /**
  * @description Submit form
  *
- * @param {IAuthAttrsLogin} form
+ * @param {IAuthFormLogin} form
  *
  * @return {Promise<void>} Promise<void>
  */
-const onSubmit = handleSubmit(async (form): Promise<void> => {
+const onSubmitLogin = async (form: IAuthFormLogin): Promise<void> => {
   try {
     // Log user in
-    const response = await login(form)
+    const response = await authStore.login({ body: form })
 
-    // Load authenticated user
-    await me()
+    // Load current user
+    await authStore.me()
+
+    toast.success(response.message)
+
+    authOptions.formState.isLoggedIn = true
+  } catch (_) {
+    //
+  }
+}
+
+/**
+ * @description Choose role
+ *
+ * @param {IAuthFormChangeRole} form
+ *
+ * @return {Promise<void>} Promise<void>
+ */
+const onChangeRole = async (form: IAuthFormChangeRole): Promise<void> => {
+  try {
+    // Change current active role to new one
+    const response = await authStore.activateRole({
+      params: { roleId: form.role.value }
+    })
+
+    // Load current user
+    await authStore.me()
 
     toast.success(response.message)
 
@@ -63,7 +81,7 @@ const onSubmit = handleSubmit(async (form): Promise<void> => {
   } catch (_) {
     //
   }
-})
+}
 </script>
 
 <template>
@@ -74,32 +92,21 @@ const onSubmit = handleSubmit(async (form): Promise<void> => {
         <auth-form-card-header title="Login Form" />
       </template>
 
-      <!-- Body -->
-      <form @submit="onSubmit">
-        <!-- Email -->
-        <app-form-group>
-          <v-input label="Email" name="email" type="email" />
-        </app-form-group>
+      <!-- Form Login -->
+      <auth-form-login
+        :loading="loading"
+        @submit="onSubmitLogin"
+        v-if="!authOptions.formState.isLoggedIn"
+      />
 
-        <!-- Password -->
-        <app-form-group>
-          <v-input label="Password" name="password" type="password" />
-        </app-form-group>
-
-        <app-form-group>
-          <div class="flex justify-end">
-            <v-btn
-              type="submit"
-              color="primary"
-              block
-              :loading="loading.isCreateEditLoading"
-              :disabled="loading.isCreateEditLoading"
-            >
-              Login
-            </v-btn>
-          </div>
-        </app-form-group>
-      </form>
+      <!-- Form Change Role -->
+      <auth-form-change-role
+        :loading="loading"
+        :role-list="roleList"
+        :previous-active-role="activeRole"
+        @submit="onChangeRole"
+        v-if="authOptions.formState.isLoggedIn"
+      />
 
       <!-- Footer -->
       <template #footer>

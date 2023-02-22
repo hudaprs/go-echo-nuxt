@@ -1,9 +1,12 @@
+// Interfaces
+import { IAuthFormLogin, IAuthFormRegister } from './auth'
+
 export interface IAuthAttrsLogin {
-  body: { email: string; password: string }
+  body: IAuthFormLogin
 }
 
 export interface IAuthAttrsRegister {
-  body: { name: string; email: string; password: string }
+  body: IAuthFormRegister
 }
 
 export interface IAuthAttrsActivateRole {

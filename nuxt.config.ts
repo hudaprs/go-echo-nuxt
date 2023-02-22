@@ -25,10 +25,7 @@ export default defineNuxtConfig({
       'composables/**',
 
       // Stores
-      './stores',
-
-      // Api
-      './api'
+      './stores'
     ]
   }
 })
