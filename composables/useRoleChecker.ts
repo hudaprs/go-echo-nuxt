@@ -23,8 +23,6 @@ interface ICheckMenuPermissionAttrs {
 
 export const useRoleChecker = () => {
   const authStore = useAuthStore()
-  const { activeRole } = storeToRefs(authStore)
-  const activeRolePermissions = activeRole?.value?.permissions || []
 
   /**
    * @description Check active role permission
@@ -38,7 +36,7 @@ export const useRoleChecker = () => {
     selectedPermissionCode: string,
     actions: IPermissionActionString[]
   ): boolean => {
-    return activeRolePermissions.some(
+    return (authStore.activeRole?.permissions || []).some(
       // Compare code of permissions from the menu and the activate permission
       // Compare "actions" from active role permissions and with menu keys
       activeRolePermission =>

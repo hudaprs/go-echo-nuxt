@@ -61,10 +61,6 @@ const defaultOptions = reactive({
   modal: { isChangeRoleOpen: false }
 })
 
-onMounted(() => {
-  menus.value = checkMenuPermissions({ menus: menus.value })
-})
-
 /**
  * @description Modal handler
  *
@@ -109,14 +105,14 @@ const onChangeRole = async (form: IAuthFormChangeRole): Promise<void> => {
     // Load current user
     await authStore.me()
 
+    // Throw message to user
     toast.success(response.message)
 
+    // Close modal
     handleModal('isChangeRoleOpen', false)
 
-    menus.value = checkMenuPermissions({ menus: menus.value })
-
-    console.log('### menus', menus.value)
-    console.log('### menus func', checkMenuPermissions({ menus: menus.value }))
+    // Force redirect to index
+    router.replace({ name: 'index' })
   } catch (_) {
     //
   }
@@ -143,7 +139,10 @@ const onChangeRole = async (form: IAuthFormChangeRole): Promise<void> => {
       <hr />
 
       <div class="ml-3">
-        <template v-for="menu in menus" :key="menu.to">
+        <template
+          v-for="menu in checkMenuPermissions({ menus })"
+          :key="menu.to"
+        >
           <v-menu
             :menu="menu"
             dark-bg-color=""
