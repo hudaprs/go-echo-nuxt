@@ -132,11 +132,26 @@ export const usePermissionStore = defineStore('permission', {
     ): void {
       this.list = this.list.map(permission => {
         if (permission.id === payload.permission.id) {
-          return {
-            ...permission,
-            actions: {
-              ...permission.actions,
-              [payload.actionKey]: payload.value
+          // Check if user uncheck read, uncheck all actions
+          if (payload.actionKey === 'read' && payload.permission.actions.read) {
+            return {
+              ...permission,
+              actions: {
+                create: false,
+                read: false,
+                update: false,
+                delete: false
+              }
+            }
+          } else {
+            // If user check other actions than read, make read to true
+            return {
+              ...permission,
+              actions: {
+                ...permission.actions,
+                read: true,
+                [payload.actionKey]: payload.value
+              }
             }
           }
         } else {

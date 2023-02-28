@@ -58,6 +58,7 @@ const { loading: permissionLoading, list: permissionList } =
   storeToRefs(permissionStore)
 
 // Common Store
+const authStore = useAuthStore()
 const commonStore = useCommonStore()
 
 // Common State
@@ -72,8 +73,7 @@ const roleOptions = reactive({
 
 // Composables
 const { paginationOptions, onChangePagination } = usePagination()
-const { checkPermissionActions } = useRoleChecker()
-const permissionActions = checkPermissionActions('ROLE_MANAGEMENT')
+const { permissionActions } = useRoleChecker('ROLE_MANAGEMENT')
 
 // Form
 const validationSchema = object({
@@ -398,6 +398,9 @@ const assignPermissions = async (): Promise<void> => {
         }))
       }
     })
+
+    // Load authenticated user
+    await authStore.me()
 
     // Throw Toast
     toast.success(response.message)

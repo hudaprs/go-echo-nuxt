@@ -61,8 +61,7 @@ const userOptions = reactive({
 
 // Composables
 const { paginationOptions, onChangePagination } = usePagination()
-const { checkPermissionActions } = useRoleChecker()
-const permissionActions = checkPermissionActions('USER_MANAGEMENT')
+const { permissionActions } = useRoleChecker('USER_MANAGEMENT')
 
 // Form
 const validationSchema = object({

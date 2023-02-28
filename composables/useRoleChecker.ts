@@ -21,8 +21,28 @@ interface ICheckMenuPermissionAttrs {
   }[]
 }
 
-export const useRoleChecker = () => {
+export const useRoleChecker = (code: string) => {
   const authStore = useAuthStore()
+  const permissionActions = computed(() => {
+    return {
+      create: checkPermission({
+        code,
+        actions: [IPermissionActionString.CREATE]
+      }),
+      read: checkPermission({
+        code,
+        actions: [IPermissionActionString.READ]
+      }),
+      update: checkPermission({
+        code,
+        actions: [IPermissionActionString.UPDATE]
+      }),
+      delete: checkPermission({
+        code,
+        actions: [IPermissionActionString.DELETE]
+      })
+    }
+  })
 
   /**
    * @description Check active role permission
@@ -90,38 +110,10 @@ export const useRoleChecker = () => {
     )
   }
 
-  /**
-   * @description Check actions
-   *
-   * @param {string} code
-   *
-   * @return {IPermissionAction} IPermissionAction
-   */
-  const checkPermissionActions = (code: string): IPermissionAction => {
-    return {
-      create: checkPermission({
-        code,
-        actions: [IPermissionActionString.CREATE]
-      }),
-      read: checkPermission({
-        code,
-        actions: [IPermissionActionString.READ]
-      }),
-      update: checkPermission({
-        code,
-        actions: [IPermissionActionString.UPDATE]
-      }),
-      delete: checkPermission({
-        code,
-        actions: [IPermissionActionString.DELETE]
-      })
-    }
-  }
-
   return {
     checkActiveRolePermission,
     checkMenuPermissions,
     checkPermission,
-    checkPermissionActions
+    permissionActions
   }
 }

@@ -68,8 +68,7 @@ const { values, validate, resetForm } = useForm<ITodoForm>({
 
 // Composables
 const { paginationOptions, onChangePagination } = usePagination()
-const { checkPermissionActions } = useRoleChecker()
-const permissionActions = checkPermissionActions('TODO')
+const { permissionActions } = useRoleChecker('TODO')
 
 // Load data
 const { refresh, error } = await useLazyAsyncData(() =>

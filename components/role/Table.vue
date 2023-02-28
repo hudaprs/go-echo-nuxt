@@ -103,7 +103,7 @@ const setPermission = (id: number): void => {
           color="warning"
           size="sm"
           @click="setPermission(item.id)"
-          v-if="props.permissionActions.create"
+          v-if="props.permissionActions.update"
         >
           Set Permission
         </v-btn>

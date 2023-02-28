@@ -118,12 +118,12 @@ const onSubmit = async (): Promise<void> => {
         <template #item.actions.create="{ item }">
           <v-checkbox
             class="flex items-center justify-center text-center"
-            :model-value="item.actions.create"
-            @update:model-value="
+            v-model="item.actions.create"
+            @change="
               onChangeActions({
                 permission: item as IPermissionWithAction,
                 actionKey: 'create',
-                value: $event as boolean
+                value: $event.target.checked as boolean
               })
             "
           />
@@ -133,12 +133,12 @@ const onSubmit = async (): Promise<void> => {
         <template #item.actions.read="{ item }">
           <v-checkbox
             class="flex items-center justify-center text-center"
-            :model-value="item.actions.read"
-            @update:model-value="
+            v-model="item.actions.read"
+            @change="
               onChangeActions({
                 permission: item as IPermissionWithAction,
                 actionKey: 'read',
-                value: $event as boolean
+                value: $event.target.checked as boolean
               })
             "
           />
@@ -148,12 +148,12 @@ const onSubmit = async (): Promise<void> => {
         <template #item.actions.update="{ item }">
           <v-checkbox
             class="flex items-center justify-center text-center"
-            :model-value="item.actions.update"
-            @update:model-value="
+            v-model="item.actions.update"
+            @change="
               onChangeActions({
                 permission: item as IPermissionWithAction,
                 actionKey: 'update',
-                value: $event as boolean
+                value: $event.target.checked as boolean
               })
             "
           />
@@ -163,12 +163,12 @@ const onSubmit = async (): Promise<void> => {
         <template #item.actions.delete="{ item }">
           <v-checkbox
             class="flex items-center justify-center text-center"
-            :model-value="item.actions.delete"
-            @update:model-value="
+            v-model="item.actions.delete"
+            @change="
               onChangeActions({
                 permission: item as IPermissionWithAction,
                 actionKey: 'delete',
-                value: $event as boolean
+                value: $event.target.checked as boolean
               })
             "
           />
