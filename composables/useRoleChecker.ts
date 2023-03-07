@@ -21,7 +21,7 @@ interface ICheckMenuPermissionAttrs {
   }[]
 }
 
-export const useRoleChecker = (code: string) => {
+export const useRoleChecker = (code = '') => {
   const authStore = useAuthStore()
   const permissionActions = computed(() => {
     return {
