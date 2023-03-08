@@ -1,0 +1,48 @@
+{
+  "menu": {
+    "login": "Login",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "todo": "Todo",
+    "userManagement": "User Management",
+    "roleManagement": "Role Management"
+  },
+  "general": {
+    "doesNotHaveAccount": "Doesn't have account?",
+    "registerHere": "Register here",
+    "haveAnAccount": "Have an account?",
+    "loginHere": "Login here",
+    "config": "Config",
+    "logout": "Logout",
+    "areYouSureWantToRefetch": "Are you sure want to refetch?",
+    "yes": "Yes",
+    "no": "No",
+    "language": "Language"
+  },
+  "auth": {
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "role": "Role"
+    },
+    "login": {
+      "section": {
+        "loginForm": "Login Form"
+      }
+    },
+    "register": {
+      "section": {
+        "registerForm": "Register Form"
+      }
+    }
+  },
+  "changeRole": {
+    "previousActiveRole": "Your previous active role is {roleName}",
+    "changeRole": "Change Role",
+    "question": {
+      "areYouSureWantToChangeRole": "Are you sure want to change role?",
+      "changeRoleAfter": "All features will be adjusted according selected role!"
+    }
+  }
+}

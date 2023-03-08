@@ -21,3 +21,5 @@ export interface ICommonPaginationQuery {
 }
 
 export type TCommonPagination = 'limit' | 'page' | 'sort'
+
+export type TCommonLang = 'id' | 'en'

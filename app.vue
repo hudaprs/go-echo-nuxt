@@ -2,6 +2,9 @@
 // Pinia
 import { storeToRefs } from 'pinia'
 
+// I18n]
+import {} from '~~/plugins/i18n'
+
 // Auth Store
 const authStore = useAuthStore()
 const { isAuthenticated } = storeToRefs(authStore)

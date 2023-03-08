@@ -1,0 +1,48 @@
+{
+  "menu": {
+    "login": "Masuk",
+    "register": "Daftar",
+    "dashboard": "Beranda",
+    "todo": "Todo",
+    "userManagement": "Manajemen User",
+    "roleManagement": "Manajemen Role"
+  },
+  "general": {
+    "doesNotHaveAccount": "Tidak punya akun?",
+    "registerHere": "Daftar di sini",
+    "haveAnAccount": "Punya akun?",
+    "loginHere": "Masuk di sini",
+    "config": "Pengaturan",
+    "logout": "Keluar",
+    "areYouSureWantToRefetch": "Apakah ingin memuat ulang?",
+    "yes": "Ya",
+    "no": "Tidak",
+    "language": "Bahasa"
+  },
+  "auth": {
+    "form": {
+      "name": "Nama",
+      "email": "Email",
+      "password": "Kata Sandi",
+      "role": "Role"
+    },
+    "login": {
+      "section": {
+        "loginForm": "Form Masuk"
+      }
+    },
+    "register": {
+      "section": {
+        "registerForm": "Form Pendaftaran"
+      }
+    }
+  },
+  "changeRole": {
+    "previousActiveRole": "Role yang sebelumnya aktif adalah {roleName}",
+    "changeRole": "Ganti Role",
+    "question": {
+      "areYouSureWantToChangeRole": "Apakah anda yakin ingin mengganti role?",
+      "changeRoleAfter": "Semua fitur yang ada sekarang akan diatur sesuai role yang dipilih!"
+    }
+  }
+}

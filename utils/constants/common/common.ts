@@ -14,7 +14,8 @@ export const COMMON_STATE_INITIAL: ICommonStoreState = {
   modalRefetchOptions: {
     isOpen: false,
     message: ''
-  }
+  },
+  locale: 'en'
 }
 
 export const COMMON_PAGINATION: ICommonPagination<unknown[]> = {

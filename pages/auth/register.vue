@@ -8,6 +8,12 @@ import { useToast } from 'vue-toastification'
 // Interfaces
 import { IAuthFormRegister } from '~~/utils/interfaces/auth/auth'
 
+// i18n
+import { useI18n } from 'vue-i18n'
+
+// Translator
+const { t } = useI18n()
+
 // Toast
 const toast = useToast()
 
@@ -24,7 +30,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Register'
+  title: t('menu.register')
 })
 
 /**
@@ -51,15 +57,19 @@ const onSubmit = async (form: IAuthFormRegister): Promise<void> => {
   <div class="h-screen w-screen justify-center items-center flex flex-col">
     <v-card style="width: 450px" bordered>
       <template #header>
-        <auth-form-card-header title="Register Form" />
+        <auth-form-card-header
+          :title="t('auth.register.section.registerForm')"
+        />
       </template>
 
       <auth-form-register :loading="loading" @submit="onSubmit" />
 
       <!-- Footer -->
       <template #footer>
-        Have an account?
-        <nuxt-link to="/auth/login" class="text-blue-400">Login here</nuxt-link>
+        {{ $t('general.haveAnAccount') }}
+        <nuxt-link to="/auth/login" class="text-blue-400">
+          {{ $t('general.loginHere') }}
+        </nuxt-link>
       </template>
     </v-card>
   </div>

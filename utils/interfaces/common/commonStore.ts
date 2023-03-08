@@ -7,4 +7,5 @@ export interface ICommonStoreState {
     confirm?: (payload?: { type: string; value: any }) => void
     close?: (payload?: { type: string; value: any }) => void
   }
+  locale: string
 }

@@ -11,13 +11,19 @@ import { useToast } from 'vue-toastification'
 // Pinia
 import { storeToRefs } from 'pinia'
 
+// i18n
+import { useI18n } from 'vue-i18n'
+
+// Translator
+const { t } = useI18n()
+
 definePageMeta({
   layout: 'auth',
   middleware: ['auth']
 })
 
 useHead({
-  title: 'Login'
+  title: t('menu.login')
 })
 
 // Router
@@ -89,7 +95,7 @@ const onChangeRole = async (form: IAuthFormChangeRole): Promise<void> => {
     <v-card style="width: 450px" bordered>
       <!-- Header -->
       <template #header>
-        <auth-form-card-header title="Login Form" />
+        <auth-form-card-header :title="$t('auth.login.section.loginForm')" />
       </template>
 
       <!-- Form Login -->
@@ -110,10 +116,10 @@ const onChangeRole = async (form: IAuthFormChangeRole): Promise<void> => {
 
       <!-- Footer -->
       <template #footer>
-        Doesn't have an account?
-        <nuxt-link to="/auth/register" class="text-blue-400"
-          >Register here</nuxt-link
-        >
+        {{ $t('general.doesNotHaveAccount') }}
+        <nuxt-link to="/auth/register" class="text-blue-400">
+          {{ $t('general.registerHere') }}
+        </nuxt-link>
       </template>
     </v-card>
   </div>

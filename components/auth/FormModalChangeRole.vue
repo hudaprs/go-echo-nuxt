@@ -4,12 +4,6 @@ import { IAuthFormChangeRole } from '~/utils/interfaces/auth/auth'
 import { ICommonLoading } from '~~/utils/interfaces'
 import { IRoleWithPermission } from '~~/utils/interfaces/role/role'
 
-// Vee Validate
-import { useForm } from 'vee-validate'
-
-// Yup
-import { object } from 'yup'
-
 // Lodash
 import omit from 'lodash.omit'
 

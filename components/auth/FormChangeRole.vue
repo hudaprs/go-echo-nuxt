@@ -10,19 +10,29 @@ import { useForm } from 'vee-validate'
 // Yup
 import { object } from 'yup'
 
+// i18n
+import { useI18n } from 'vue-i18n'
+
+// Translator
+const { t } = useI18n()
+
 // Props
 const props = defineProps<{
   loading: ICommonLoading
   roleList: { text: string; value: any }[]
   previousActiveRole: IRoleWithPermission | null
+  fromOtherMenu?: boolean
 }>()
 
 // Emits
-const emit = defineEmits<{ (e: 'submit', value: IAuthFormChangeRole): void }>()
+const emit = defineEmits<{
+  (e: 'submit', value: IAuthFormChangeRole): void
+  (e: 'change', value: number): void
+}>()
 
 // Form
 const validationSchema = object({
-  role: object().required().label('Role')
+  role: object().required().label(t('auth.form.role'))
 })
 const { handleSubmit } = useForm<IAuthFormChangeRole>({
   validationSchema
@@ -42,16 +52,25 @@ const onSubmit = handleSubmit((form): void => {
 
 <template>
   <v-alert class="mb-3" color="success" v-if="props.previousActiveRole">
-    Your previous active role is {{ props.previousActiveRole.name }}
+    {{
+      $t('changeRole.previousActiveRole', {
+        roleName: props.previousActiveRole.name
+      })
+    }}
   </v-alert>
 
   <form @submit="onSubmit">
     <!-- Role -->
     <app-form-group>
-      <v-autocomplete label="Role" name="role" :items="props.roleList" />
+      <v-autocomplete
+        :name="props.fromOtherMenu ? undefined : 'role'"
+        :label="$t('auth.form.role')"
+        :items="props.roleList"
+        @update:model-value="emit('change', $event.value)"
+      />
     </app-form-group>
 
-    <app-form-group>
+    <app-form-group v-if="!props.fromOtherMenu">
       <div class="flex justify-end">
         <v-btn
           type="submit"
@@ -60,7 +79,7 @@ const onSubmit = handleSubmit((form): void => {
           :loading="props.loading.isCreateEditLoading"
           :disabled="props.loading.isCreateEditLoading"
         >
-          Change Role
+          {{ $t('changeRole.changeRole') }}
         </v-btn>
       </div>
     </app-form-group>

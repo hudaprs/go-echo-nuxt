@@ -4,22 +4,17 @@ import { storeToRefs } from 'pinia'
 
 // Interfaces
 import { IPermissionActionString } from '~~/utils/interfaces/permission/permission'
-import { IAuthFormChangeRole } from '~~/utils/interfaces/auth/auth'
 
-// Vue Toastification
-import { useToast } from 'vue-toastification'
+// Translator
+const { t } = useLocale()
 
 // Composables
 const { checkMenuPermissions } = useRoleChecker()
-
-// Toast
-const toast = useToast()
 
 // Store
 const authStore = useAuthStore()
 const commonStore = useCommonStore()
 const { modalRefetchOptions } = storeToRefs(commonStore)
-const { loading, roleList, activeRole } = storeToRefs(authStore)
 
 // Router
 const router = useRouter()
@@ -28,19 +23,19 @@ const router = useRouter()
 const isSidebarOpen = ref(true)
 const menus = ref([
   {
-    text: 'Dashboard',
+    text: t('menu.dashboard'),
     to: '/',
     icon: 'ri:home-2-line',
     permissions: []
   },
   {
-    text: 'Todo',
+    text: t('menu.todo'),
     to: '/todos',
     icon: 'ri-book-read-line',
     permissions: [{ code: 'TODO', actions: [IPermissionActionString.READ] }]
   },
   {
-    text: 'User Management',
+    text: t('menu.userManagement'),
     to: '/users',
     icon: 'ri-file-user-line',
     permissions: [
@@ -48,7 +43,7 @@ const menus = ref([
     ]
   },
   {
-    text: 'Role Management',
+    text: t('menu.roleManagement'),
     to: '/roles',
     icon: 'ri-profile-line',
     permissions: [
@@ -85,34 +80,6 @@ const onLogout = async (): Promise<void> => {
 
     // Redirect to login
     router.replace({ name: 'auth-login' })
-  } catch (_) {
-    //
-  }
-}
-
-/**
- * @description Change role handler
- *
- * @return {Promise<void>} Promise<void>
- */
-const onChangeRole = async (form: IAuthFormChangeRole): Promise<void> => {
-  try {
-    // Change current active role to new one
-    const response = await authStore.activateRole({
-      params: { roleId: form.role.value }
-    })
-
-    // Load current user
-    await authStore.me()
-
-    // Throw message to user
-    toast.success(response.message)
-
-    // Close modal
-    handleModal('isChangeRoleOpen', false)
-
-    // Force redirect to index
-    router.replace({ name: 'index' })
   } catch (_) {
     //
   }
@@ -171,11 +138,11 @@ const onChangeRole = async (form: IAuthFormChangeRole): Promise<void> => {
               class="cursor-pointer text-blue-400"
               @click="handleModal('isChangeRoleOpen', true)"
             >
-              Change Role
+              {{ t('general.config') }}
             </div>
 
             <div class="cursor-pointer text-blue-400" @click="onLogout">
-              Logout
+              {{ t('general.logout') }}
             </div>
           </div>
         </div>
@@ -189,20 +156,16 @@ const onChangeRole = async (form: IAuthFormChangeRole): Promise<void> => {
 
     <!-- Modal Confirmation - Refetch -->
     <app-modal-confirmation
-      :title="modalRefetchOptions.title || 'Are you want to refetch?'"
+      :title="modalRefetchOptions.title || t('general.areYouSureWantToRefetch')"
       :message="modalRefetchOptions.message"
       :is-open="modalRefetchOptions.isOpen"
       @confirm="commonStore.CLEAR_MODAL_REFETCH(modalRefetchOptions.confirm)"
       @close="commonStore.CLEAR_MODAL_REFETCH(modalRefetchOptions.close)"
     />
 
-    <!-- Modal Change Role -->
-    <auth-form-modal-change-role
-      :loading="loading"
+    <!-- Modal Option -->
+    <app-modal-configuration
       :isOpen="defaultOptions.modal.isChangeRoleOpen"
-      :role-list="roleList"
-      :previous-active-role="activeRole"
-      @submit="onChangeRole"
       @close="handleModal('isChangeRoleOpen', false)"
     />
   </div>
